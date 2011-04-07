@@ -1,8 +1,6 @@
 require 'bundler'
 Bundler::GemHelper.install_tasks
 
-require File.expand_path('../lib/pacer-graph/version', __FILE__)
-
 file 'pom.xml' => 'lib/pacer-graph/version.rb' do
   pom = File.read 'pom.xml'
   when_writing('Update pom.xml version number') do
@@ -20,10 +18,10 @@ file 'pom.xml' => 'lib/pacer-graph/version.rb' do
   end
 end
 
-file PacerGraph::JAR => 'pom.xml' do
+file PacerGraph::JAR_PATH => 'pom.xml' do
   when_writing("Execute 'mvn package' task") do
-    puts system('mvn clean package')
+    system('mvn clean package')
   end
 end
 
-task :build => PacerGraph::JAR
+task :build => PacerGraph::JAR_PATH
