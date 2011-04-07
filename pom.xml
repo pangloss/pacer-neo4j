@@ -10,8 +10,7 @@
     <!-- NOTE: the version property is automatically updated based on the value in lib/pacer-neo4j/version.rb -->
     <packaging>pom</packaging>
     <url>https://github.com/pangloss/pacer</url>
-    <name>Pacer Tinkerpop core dependencies including Blueprints Core
-      and Pipes.</name>
+    <name>Pacer Neo4J dependencies and related code.</name>
     <description>
     </description>
     <inceptionYear>2011</inceptionYear>
