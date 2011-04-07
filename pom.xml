@@ -4,10 +4,10 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tinkerpop.pacer</groupId>
-    <artifactId>pacer-graph</artifactId>
-    <!-- NOTE: the version property is automatically updated based on the value in lib/pacer-graph/version.rb -->
+    <artifactId>pacer-neo4j</artifactId>
+    <!-- NOTE: the version property is automatically updated based on the value in lib/pacer-neo4j/version.rb -->
     <version>1.0.0</version>
-    <!-- NOTE: the version property is automatically updated based on the value in lib/pacer-graph/version.rb -->
+    <!-- NOTE: the version property is automatically updated based on the value in lib/pacer-neo4j/version.rb -->
     <packaging>pom</packaging>
     <url>https://github.com/pangloss/pacer</url>
     <name>Pacer Tinkerpop core dependencies including Blueprints Core
@@ -26,7 +26,7 @@
         <!-- PROPERTY GRAPH MODEL SUPPORT -->
         <dependency>
             <groupId>com.tinkerpop.blueprints</groupId>
-            <artifactId>blueprints-core</artifactId>
+            <artifactId>blueprints-neo4j-graph</artifactId>
             <version>0.7-SNAPSHOT</version>
         </dependency>
         <!-- GRAPH TRAVERSAL SUPPORT -->
