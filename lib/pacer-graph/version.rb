@@ -1,5 +1,4 @@
-module Pacer
-  module Graph
-    VERSION = "1.0.1"
-  end
+module PacerGraph
+  VERSION = "1.0.0"
+  JAR = "pacer-graph-#{ VERSION }-standalone.jar"
 end

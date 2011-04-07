@@ -1,5 +1,2 @@
-module Pacer
-  module Graph
-    # Your code goes here...
-  end
-end
+require 'pacer-graph/version'
+require PacerGraph::JAR

@@ -4,17 +4,17 @@ require "pacer-graph/version"
 
 Gem::Specification.new do |s|
   s.name        = "pacer-graph"
-  s.version     = Pacer::Graph::VERSION
-  s.platform    = Gem::Platform::RUBY
-  s.authors     = ["TODO: Write your name"]
-  s.email       = ["TODO: Write your email address"]
-  s.homepage    = ""
-  s.summary     = %q{TODO: Write a gem summary}
-  s.description = %q{TODO: Write a gem description}
+  s.version     = PacerGraph::VERSION
+  s.platform    = 'jruby'
+  s.authors     = ["Darrick Wiebe"]
+  s.email       = ["darrick@innatesoftware.com"]
+  s.homepage    = "http://www.tinkerpop.com"
+  s.summary     = %q{Tinkerpop Stack packaged for Pacer}
+  s.description = s.summary
 
   s.rubyforge_project = "pacer-graph"
 
-  s.files         = `git ls-files`.split("\n")
+  s.files         = `git ls-files`.split("\n") + [PacerGraph::JAR]
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
