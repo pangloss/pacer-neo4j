@@ -25,3 +25,4 @@ file Pacer::Neo4j::JAR_PATH => 'pom.xml' do
 end
 
 task :build => Pacer::Neo4j::JAR_PATH
+task :install => :build
