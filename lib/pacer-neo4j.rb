@@ -7,3 +7,4 @@ require 'pacer-neo4j/vertex'
 require 'pacer-neo4j/edge'
 require 'pacer-neo4j/index'
 require 'pacer-neo4j/graph'
+require 'pacer-neo4j/rspec' if defined? RSpec
