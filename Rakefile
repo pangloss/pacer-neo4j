@@ -24,5 +24,9 @@ file Pacer::Neo4j::JAR_PATH => 'pom.xml' do
   end
 end
 
-task :build => Pacer::Neo4j::JAR_PATH
-task :install => Pacer::Neo4j::JAR_PATH
+task :note do
+  puts "NOTE: touch lib/pacer-neo4j/version.rb to force everything to rebuild"
+end
+
+task :build => [:note, Pacer::Neo4j::JAR_PATH]
+task :install => [:note, Pacer::Neo4j::JAR_PATH]
