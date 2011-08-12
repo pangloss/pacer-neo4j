@@ -6,7 +6,7 @@
     <groupId>com.tinkerpop.pacer</groupId>
     <artifactId>pacer-neo4j</artifactId>
     <!-- NOTE: the version property is automatically updated based on the value in lib/pacer-neo4j/version.rb -->
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <!-- NOTE: the version property is automatically updated based on the value in lib/pacer-neo4j/version.rb -->
     <packaging>pom</packaging>
     <url>https://github.com/pangloss/pacer</url>

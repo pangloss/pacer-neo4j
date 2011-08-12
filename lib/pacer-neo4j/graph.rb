@@ -8,14 +8,23 @@ module Pacer
   class << self
     # Return a graph for the given path. Will create a graph if none exists at
     # that location. (The graph is only created if data is actually added to it).
-    def neo4j(path, args = nil)
-      path = File.expand_path(path)
-      Pacer.starting_graph(self, path) do
-        if args
-          Neo4jGraph.new(path, args.to_hash_map)
-        else
-          Neo4jGraph.new(path)
+    #
+    # If the graph is opened from a path, it will be registered to be closed by
+    # Ruby's at_exit callback, but if an already open graph is given, it will
+    # not.
+    def neo4j(path_or_graph, args = nil)
+      if path_or_graph.is_a? String
+        path = File.expand_path(path_or_graph)
+        Pacer.starting_graph(self, path) do
+          if args
+            Neo4jGraph.new(path, args.to_hash_map)
+          else
+            Neo4jGraph.new(path)
+          end
         end
+      else
+        # Don't register the new graph so that it won't be automatically closed.
+        Neo4jGraph.new(path_or_graph)
       end
     end
   end
