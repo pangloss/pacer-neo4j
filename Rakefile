@@ -4,15 +4,12 @@ Bundler::GemHelper.install_tasks
 file 'pom.xml' => 'lib/pacer-neo4j/version.rb' do
   pom = File.read 'pom.xml'
   when_writing('Update pom.xml version number') do
-    updated = false
     open 'pom.xml', 'w' do |f|
       pom.each_line do |line|
-        if not updated and line =~ %r{<version>.*</version>}
-          f << line.sub(%r{<version>.*</version>}, "<version>#{ Pacer::Neo4j::VERSION }</version>")
-          updated = true
-        else
-          f << line
-        end
+        line.sub!(%r{<gem.version>.*</gem.version>}, "<gem.version>#{ Pacer::Neo4j::VERSION }</gem.version>")
+        line.sub!(%r{<blueprints.version>.*</blueprints.version>}, "<blueprints.version>#{ Pacer::Neo4j::BLUEPRINTS_VERSION }</blueprints.version>")
+        line.sub!(%r{<pipes.version>.*</pipes.version>}, "<pipes.version>#{ Pacer::Neo4j::PIPES_VERSION }</pipes.version>")
+        f << line
       end
     end
   end
