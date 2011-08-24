@@ -102,7 +102,7 @@ module Pacer
       end
     end
 
-    if RUBY_VERSION =~ /^1.9/
+    if 'x'.to_yaml[0, 5] == '%YAML'
       def decode_property(value)
         if value.is_a? String and value[0, 5] == '%YAML'
           YAML.load(value)

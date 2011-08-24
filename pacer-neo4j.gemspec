@@ -12,12 +12,11 @@ Gem::Specification.new do |s|
   s.summary     = %q{Neo4J jars and related code for Pacer}
   s.description = s.summary
 
-  s.add_dependency 'pacer', "~> 0.8.0"
+  s.add_dependency 'pacer'
 
   s.rubyforge_project = "pacer-neo4j"
 
   s.files         = `git ls-files`.split("\n") + [Pacer::Neo4j::JAR_PATH]
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
-  s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 end
