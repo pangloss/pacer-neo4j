@@ -33,10 +33,12 @@ module Pacer
   # Extend the java class imported from blueprints.
   class Neo4jGraph
     include GraphMixin
+    include GraphIndicesMixin
     include GraphTransactionsMixin
     include ManagedTransactionsMixin
     include Pacer::Core::Route
     include Pacer::Core::Graph::GraphRoute
+    include Pacer::Core::Graph::GraphIndexRoute
 
     # Override to return an enumeration-friendly array of vertices.
     def get_vertices
@@ -48,32 +50,16 @@ module Pacer
       getEdges.to_route(:graph => self, :element_type => :edge)
     end
 
-    def element_type(et = nil)
-      return nil unless et
-      if et == Neo4jVertex or et == Neo4jEdge or et == Neo4jElement
-        et
-      else
-        case et
-        when :vertex, com.tinkerpop.blueprints.pgm.Vertex, VertexMixin
-          Neo4jVertex
-        when :edge, com.tinkerpop.blueprints.pgm.Edge, EdgeMixin
-          Neo4jEdge
-        when :mixed, com.tinkerpop.blueprints.pgm.Element, ElementMixin
-          Neo4jElement
-        when :object
-          Object
-        else
-          if et == Object
-            Object
-          elsif et == Neo4jVertex.java_class.to_java
-            Neo4jVertex
-          elsif et == Neo4jEdge.java_class.to_java
-            Neo4jEdge
-          else
-            raise ArgumentError, 'Element type may be one of :vertex or :edge'
-          end
-        end
-      end
+    def element_class
+      Neo4jElement
+    end
+
+    def vertex_class
+      Neo4jVertex
+    end
+
+    def edge_class
+      Neo4jEdge
     end
 
     def sanitize_properties(props)
