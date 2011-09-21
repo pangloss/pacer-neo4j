@@ -6,23 +6,19 @@ module Pacer
 
   class Neo4jIndex
     include IndexMixin
-    import com.tinkerpop.blueprints.pgm.Vertex
-    import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jVertex
-    import com.tinkerpop.blueprints.pgm.Edge
-    import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jEdge
+    JVertex = com.tinkerpop.blueprints.pgm.Vertex.java_class.to_java
+    JEdge = com.tinkerpop.blueprints.pgm.Edge.java_class.to_java
+    JNeo4jVertex = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jVertex.java_class.to_java
+    JNeo4jEdge = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jEdge.java_class.to_java
 
     def index_class
       et = getIndexClass
-      if et == Vertex.java_class.to_java or et == Neo4jVertex
-        Neo4jVertex.java_class.to_java
-      elsif et == Neo4jVertex.java_class.to_java
-        Neo4jVertex.java_class.to_java
-      elsif et == Edge.java_class.to_java or et == Neo4jEdge
-        Neo4jEdge.java_class.to_java
-      elsif et == Neo4jEdge.java_class.to_java
-        Neo4jVertex.java_class.to_java
+      if et == JVertex
+        JNeo4jVertex
+      elsif et == JEdge
+        JNeo4jEdge
       else
-        raise "unexpected Neo4j Index class: #{ et.to_s }"
+        et
       end
     end
   end
@@ -30,23 +26,19 @@ module Pacer
 
   class Neo4jAutomaticIndex
     include IndexMixin
-    import com.tinkerpop.blueprints.pgm.Vertex
-    import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jVertex
-    import com.tinkerpop.blueprints.pgm.Edge
-    import com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jEdge
+    JVertex = com.tinkerpop.blueprints.pgm.Vertex.java_class.to_java
+    JEdge = com.tinkerpop.blueprints.pgm.Edge.java_class.to_java
+    JNeo4jVertex = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jVertex.java_class.to_java
+    JNeo4jEdge = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jEdge.java_class.to_java
 
     def index_class
       et = getIndexClass
-      if et == Vertex.java_class.to_java or et == Neo4jVertex
-        Neo4jVertex.java_class.to_java
-      elsif et == Neo4jVertex.java_class.to_java
-        Neo4jVertex.java_class.to_java
-      elsif et == Edge.java_class.to_java or et == Neo4jEdge
-        Neo4jEdge.java_class.to_java
-      elsif et == Neo4jEdge.java_class.to_java
-        Neo4jVertex.java_class.to_java
+      if et == JVertex
+        JNeo4jVertex
+      elsif et == JEdge
+        JNeo4jEdge
       else
-        raise "unexpected Neo4j Index class: #{ et.to_s }"
+        et
       end
     end
   end
