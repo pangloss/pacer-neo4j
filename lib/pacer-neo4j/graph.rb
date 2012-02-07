@@ -83,6 +83,33 @@ module Pacer
         else
           value
         end
+      when true, false
+        value
+      when Array
+        if value.length == 0
+          value_type = Fixnum
+        else
+          value_type = value.first.type
+          value_type = TrueClass if value_type == FalseClass
+          value.each do |v|
+            if value_type != v.class or (value == true or value == false and value_type == TrueClass)
+              value_type = nil
+              break
+            end
+          end
+        end
+        case value_type
+        when Fixnum
+          value.to_java :long
+        when Float
+          value.to_java :double
+        when TrueClass
+          value.to_java :boolean
+        when String
+          value.to_java :string
+        else
+          value.to_yaml
+        end
       else
         value.to_yaml
       end
@@ -92,6 +119,8 @@ module Pacer
       def decode_property(value)
         if value.is_a? String and value[0, 5] == '%YAML'
           YAML.load(value)
+        elsif value.is_a? ArrayJavaProxy
+          value.to_a
         else
           value
         end
@@ -100,6 +129,8 @@ module Pacer
       def decode_property(value)
         if value.is_a? String and value[0, 3] == '---'
           YAML.load(value)
+        elsif value.is_a? ArrayJavaProxy
+          value.to_a
         else
           value
         end
