@@ -89,7 +89,7 @@ module Pacer
         if value.length == 0
           value_type = Fixnum
         else
-          value_type = value.first.type
+          value_type = value.first.class
           value_type = TrueClass if value_type == FalseClass
           value.each do |v|
             if value_type != v.class or (value == true or value == false and value_type == TrueClass)
