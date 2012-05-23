@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Neo4J jars and related code for Pacer}
   s.description = s.summary
 
-  s.add_dependency 'pacer', '>= 0.8.5'
+  s.add_dependency 'pacer', '>= 0.9.1.1'
 
   s.rubyforge_project = "pacer-neo4j"
 
