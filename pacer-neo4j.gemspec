@@ -5,7 +5,7 @@ require "pacer-neo4j/version"
 Gem::Specification.new do |s|
   s.name        = "pacer-neo4j"
   s.version     = Pacer::Neo4j::VERSION
-  s.platform    = 'jruby'
+  s.platform    = 'java'
   s.authors     = ["Darrick Wiebe"]
   s.email       = ["darrick@innatesoftware.com"]
   s.homepage    = "http://neo4j.org"
