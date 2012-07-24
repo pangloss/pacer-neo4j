@@ -1,8 +1,8 @@
 require 'yaml'
 
 module Pacer
-  Neo4jGraph = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jGraph
-  Neo4jElement = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jElement
+  Neo4jGraph = com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph
+  Neo4jElement = com.tinkerpop.blueprints.impls.neo4j.Neo4jElement
 
   # Add 'static methods' to the Pacer namespace.
   class << self

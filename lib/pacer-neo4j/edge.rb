@@ -1,7 +1,7 @@
 require 'yaml'
 
 module Pacer
-  Neo4jEdge = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jEdge
+  Neo4jEdge = com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
 
   # Extend the java class imported from blueprints.
   class Neo4jEdge
