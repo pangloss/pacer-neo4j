@@ -22,8 +22,14 @@ file Pacer::Neo4j::JAR_PATH => 'pom.xml' do
 end
 
 task :note do
-  puts "NOTE: touch lib/pacer-neo4j/version.rb to force everything to rebuild"
+  puts "NOTE: touch lib/pacer-neo4j/version.rb (or rake touch) to force everything to rebuild"
 end
 
 task :build => [:note, Pacer::Neo4j::JAR_PATH]
 task :install => [:note, Pacer::Neo4j::JAR_PATH]
+
+desc 'Touch version.rb so that the jar rebuilds'
+task :touch do
+  system 'touch', 'lib/pacer-neo4j/version.rb'
+end
+

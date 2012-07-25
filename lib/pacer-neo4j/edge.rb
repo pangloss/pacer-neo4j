@@ -1,7 +1,7 @@
 require 'yaml'
 
 module Pacer
-  Neo4jEdge = com.tinkerpop.blueprints.pgm.impls.neo4j.Neo4jEdge
+  Neo4jEdge = com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
 
   # Extend the java class imported from blueprints.
   class Neo4jEdge
@@ -10,7 +10,7 @@ module Pacer
     include EdgeMixin
 
     def in_vertex(extensions = nil)
-      v = inVertex
+      v = getVertex Pacer::Pipes::IN
       v.graph = graph
       if extensions.is_a? Enumerable
         v.add_extensions extensions
@@ -22,7 +22,7 @@ module Pacer
     end
 
     def out_vertex(extensions = nil)
-      v = outVertex
+      v = getVertex Pacer::Pipes::OUT
       v.graph = graph
       if extensions.is_a? Enumerable
         v.add_extensions extensions
