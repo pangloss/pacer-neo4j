@@ -12,16 +12,25 @@ module Pacer
     # If the graph is opened from a path, it will be registered to be closed by
     # Ruby's at_exit callback, but if an already open graph is given, it will
     # not.
+    #
+    # Please note that Pacer turns on Neo4j's checkElementsInTransaction
+    # feature by default. For some sort of performance improvement at
+    # the expense of an odd consistency model within transactions that
+    # require considerable more complexity in client code, you can use
+    # `graph.setCheckElementsInTransaction(false)` to disable the
+    # feature.
     def neo4j(path_or_graph, args = nil)
       if path_or_graph.is_a? String
         path = File.expand_path(path_or_graph)
-        Pacer.starting_graph(self, path) do
+        graph = Pacer.starting_graph(self, path) do
           if args
             Neo4jGraph.new(path, args.to_hash_map)
           else
             Neo4jGraph.new(path)
           end
         end
+        graph.setCheckElementsInTransaction true
+        graph
       else
         # Don't register the new graph so that it won't be automatically closed.
         Neo4jGraph.new(path_or_graph)
