@@ -38,6 +38,4 @@ class RSpec::GraphRunner
       @neo_graph_no_indices
     end
   end
-
-  include Neo4j
 end
