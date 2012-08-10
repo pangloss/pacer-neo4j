@@ -44,7 +44,6 @@ module Pacer
     include GraphMixin
     include GraphIndicesMixin
     include GraphTransactionsMixin
-    include ManagedTransactionsMixin
     include Pacer::Core::Route
     include Pacer::Core::Graph::GraphRoute
     include Pacer::Core::Graph::GraphIndexRoute
