@@ -33,8 +33,6 @@ class RSpec::GraphRunner
       dir = Pathname.new(path3)
       dir.rmtree if dir.exist?
       @neo_graph_no_indices = Pacer.neo4j(path3)
-      @neo_graph_no_indices.drop_index :vertices
-      @neo_graph_no_indices.drop_index :edges
       @neo_graph_no_indices
     end
   end
