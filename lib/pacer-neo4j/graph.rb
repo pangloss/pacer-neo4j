@@ -28,12 +28,12 @@ module Pacer
             neo.new(path)
           end
         end
-        graph.setCheckElementsInTransaction true
-        graph
       else
         # Don't register the new graph so that it won't be automatically closed.
-        neo.new(path_or_graph)
+        graph.neo.new(path_or_graph)
       end
+      graph.setCheckElementsInTransaction true
+      PacerGraph.new graph, Pacer::YamlEncoder
     end
   end
 
