@@ -8,8 +8,8 @@
     <!-- NOTE: the following properties are automatically updated based on the values in lib/pacer-neo4j/version.rb -->
     <properties>
       <gem.version>2.0.0.pre</gem.version>
-      <blueprints.version>2.1.0-SNAPSHOT</blueprints.version>
-      <pipes.version>2.1.0-SNAPSHOT</pipes.version>
+      <blueprints.version>2.1.0</blueprints.version>
+      <pipes.version>2.1.0</pipes.version>
     </properties>
     <!-- NOTE: the following properties are automatically updated based on the values in lib/pacer-neo4j/version.rb -->
     <version>${gem.version}</version>
