@@ -20,8 +20,8 @@ module Pacer
     def neo4j(path_or_graph, args = nil)
       neo = com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph
       if path_or_graph.is_a? String
+        path = File.expand_path(path_or_graph)
         open = proc do
-          path = File.expand_path(path_or_graph)
           graph = Pacer.open_graphs[path]
           unless graph
             if args
@@ -34,8 +34,8 @@ module Pacer
           end
           graph
         end
-        shutdown = proc do
-          graph.shutdown
+        shutdown = proc do |g|
+          g.blueprints_graph.shutdown
           Pacer.open_graphs[path] = nil
         end
         PacerGraph.new(Pacer::YamlEncoder, open, shutdown)
