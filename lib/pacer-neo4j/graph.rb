@@ -20,20 +20,29 @@ module Pacer
     def neo4j(path_or_graph, args = nil)
       neo = com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph
       if path_or_graph.is_a? String
-        path = File.expand_path(path_or_graph)
-        graph = Pacer.starting_graph(self, path) do
-          if args
-            neo.new(path, args.to_hash_map)
-          else
-            neo.new(path)
+        open = proc do
+          path = File.expand_path(path_or_graph)
+          graph = Pacer.open_graphs[path]
+          unless graph
+            if args
+              graph = neo.new(path, args.to_hash_map)
+            else
+              graph = neo.new(path)
+            end
+            Pacer.open_graphs[path] = graph
+            graph.setCheckElementsInTransaction true
           end
+          graph
         end
+        shutdown = proc do
+          graph.shutdown
+          Pacer.open_graphs[path] = nil
+        end
+        PacerGraph.new(Pacer::YamlEncoder, open, shutdown)
       else
         # Don't register the new graph so that it won't be automatically closed.
-        graph.neo.new(path_or_graph)
+        PacerGraph.new Pacer::YamlEncoder, proc { graph.neo.new(path_or_graph) }
       end
-      graph.setCheckElementsInTransaction true
-      PacerGraph.new graph, Pacer::YamlEncoder
     end
   end
 
