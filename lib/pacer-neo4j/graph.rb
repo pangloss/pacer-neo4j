@@ -41,7 +41,7 @@ module Pacer
         PacerGraph.new(Pacer::YamlEncoder, open, shutdown)
       else
         # Don't register the new graph so that it won't be automatically closed.
-        PacerGraph.new Pacer::YamlEncoder, proc { graph.neo.new(path_or_graph) }
+        PacerGraph.new Pacer::YamlEncoder, proc { neo.new(path_or_graph) }
       end
     end
   end
