@@ -36,7 +36,7 @@ module Pacer
         end
         shutdown = proc do |g|
           g.blueprints_graph.shutdown
-          Pacer.open_graphs[path] = nil
+          Pacer.open_graphs.delete path
         end
         PacerGraph.new(Pacer::YamlEncoder, open, shutdown)
       else
