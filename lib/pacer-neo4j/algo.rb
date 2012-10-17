@@ -1,12 +1,15 @@
 module Pacer
   module Core::Graph::VerticesRoute
     def path_to(to_v, opts = {})
-      chain_route({transform: :shortest_path, element_type: :path, target: to_v}.merge opts)
+      chain_route({transform: :path_finder, element_type: :path, target: to_v}.merge opts)
+    end
+    def paths_to(to_v, opts = { find_all: true })
+      chain_route({transform: :path_finder, element_type: :path, target: to_v}.merge opts)
     end
   end
 
   module Transform
-    module ShortestPath
+    module PathFinder
       import org.neo4j.graphalgo.CommonEvaluators
       import org.neo4j.graphalgo.GraphAlgoFactory
       import org.neo4j.graphdb.Direction
@@ -44,7 +47,10 @@ module Pacer
       attr_accessor :length
 
       # default to shortest_path unless find_all is set
-      attr_accessor :max_depth
+      attr_writer :max_depth
+      def max_depth
+        @max_depth || 5
+      end
 
       # use shortestPath
       attr_accessor :max_hit_count
@@ -57,13 +63,13 @@ module Pacer
       protected
 
       def attach_pipe(end_pipe)
-        p = Pipe.new build_algo
+        p = Pipe.new build_algo, graph, target
         p.setStarts end_pipe
         p
       end
 
       def inspect_string
-        "path_to(#{ target.inspect })"
+        "paths_to(#{ target.inspect })"
       end
 
       private
@@ -78,23 +84,31 @@ module Pacer
 
       def build_algo
         if has_cost?
+          puts 'use aStar'
           if has_estimate?
             GraphAlgoFactory.aStar expander, build_cost, build_estimate
           else
             GraphAlgoFactory.aStar expander, build_cost
           end
         elsif length
+          puts 'use all with length'
           GraphAlgoFactory.pathsWithLength expander, length
-        elsif find_all == :simple and max_depth
-          GraphAlgoFactory.allSimplePaths expander, max_depth
-        elsif find_all and max_depth
+        elsif find_all == :all and max_depth
+          puts 'all paths'
           GraphAlgoFactory.allPaths expander, max_depth
+        elsif find_all and max_depth
+          puts 'use all simple paths'
+          GraphAlgoFactory.allSimplePaths expander, max_depth
         elsif max_depth
           if max_hit_count
+            puts 'use shortest, max depth'
             GraphAlgoFactory.shortestPath expander, max_depth, max_hit_count
           else
+            puts 'use shortest path'
             GraphAlgoFactory.shortestPath expander, max_depth
           end
+        else
+          fail Pacer::ClientError, "Could not choose a path algorithm"
         end
       end
 
@@ -141,15 +155,54 @@ module Pacer
       end
 
       class Pipe < Pacer::Pipes::RubyPipe
-        attr_reader :algo
+        import org.neo4j.graphdb::Node
+        import org.neo4j.graphdb::Relationship
+        import com.tinkerpop.blueprints.impls.neo4j.Neo4jVertex
+        import com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
 
-        def initialize(algo)
+        attr_reader :algo, :target, :graph
+        attr_accessor :current_paths
+
+        def initialize(algo, graph, target)
           super()
           @algo = algo
+          @graph = graph.blueprints_graph
+          @target = target.element.raw_element
         end
 
         def processNextStart
+          next_raw_path.map do |e|
+            if e.is_a? Node
+              Neo4jVertex.new e, graph
+            elsif e.is_a? Relationship
+              Neo4jEdge.new e, graph
+            else
+              e
+            end
+          end
+        end
 
+        def next_raw_path
+          loop do
+            if current_paths
+              if current_paths.hasNext
+                return current_paths.next
+              else
+                self.current_paths = nil
+              end
+            else
+              self.current_paths = @algo.findAllPaths(next_raw, target).iterator
+            end
+          end
+        end
+
+        def next_raw
+          c = starts.next
+          if c.respond_to? :element
+            c.element.raw_element
+          else
+            c.raw_element
+          end
         end
       end
     end
