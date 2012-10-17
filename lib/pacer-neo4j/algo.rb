@@ -1,9 +1,9 @@
 module Pacer
   module Core::Graph::VerticesRoute
     def path_to(to_v, opts = {})
-      chain_route({transform: :path_finder, element_type: :path, target: to_v}.merge opts)
+      chain_route({transform: :path_finder, element_type: :path, max_hits: 1, target: to_v}.merge opts)
     end
-    def paths_to(to_v, opts = { find_all: true })
+    def paths_to(to_v, opts = {})
       chain_route({transform: :path_finder, element_type: :path, target: to_v}.merge opts)
     end
   end
@@ -53,7 +53,7 @@ module Pacer
       end
 
       # use shortestPath
-      attr_accessor :max_hit_count
+      attr_accessor :max_hits
 
       # Possible values:
       # true    - allPaths
@@ -63,7 +63,7 @@ module Pacer
       protected
 
       def attach_pipe(end_pipe)
-        p = Pipe.new build_algo, graph, target
+        p = Pipe.new build_algo, graph, target, max_hits
         p.setStarts end_pipe
         p
       end
@@ -86,7 +86,7 @@ module Pacer
         elsif find_all and max_depth
           :all_simple
         elsif max_depth
-          if max_hit_count
+          if max_hits
             :shortest_with_max_hits
           else
             :shortest
@@ -112,12 +112,12 @@ module Pacer
           GraphAlgoFactory.dijkstra expander, build_cost
         when :with_length
           GraphAlgoFactory.pathsWithLength expander, length
-        when :all_paths
+        when :all
           GraphAlgoFactory.allPaths expander, max_depth
-        when :simple_paths
+        when :all_simple
           GraphAlgoFactory.allSimplePaths expander, max_depth
         when :shortest_with_max_hits
-          GraphAlgoFactory.shortestPath expander, max_depth, max_hit_count
+          GraphAlgoFactory.shortestPath expander, max_depth, max_hits
         when :shortest
           GraphAlgoFactory.shortestPath expander, max_depth
         when nil
@@ -175,12 +175,13 @@ module Pacer
         import com.tinkerpop.blueprints.impls.neo4j.Neo4jVertex
         import com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
 
-        attr_reader :algo, :target, :graph
-        attr_accessor :current_paths
+        attr_reader :algo, :target, :graph, :max_hits
+        attr_accessor :current_paths, :hits
 
-        def initialize(algo, graph, target)
+        def initialize(algo, graph, target, max_hits)
           super()
           @algo = algo
+          @max_hits = max_hits || -1
           @graph = graph.blueprints_graph
           @target = target.element.raw_element
         end
@@ -200,23 +201,27 @@ module Pacer
         def next_raw_path
           loop do
             if current_paths
-              if current_paths.hasNext
+              if hits == 0
+                self.current_paths = nil
+              elsif current_paths.hasNext
+                self.hits -= 1
                 return current_paths.next
               else
                 self.current_paths = nil
               end
             else
+              self.hits = max_hits
               self.current_paths = @algo.findAllPaths(next_raw, target).iterator
             end
           end
         end
 
         def next_raw
-          c = starts.next
-          if c.respond_to? :element
-            c.element.raw_element
+          element = starts.next
+          if element.respond_to? :element
+            element.element.raw_element
           else
-            c.raw_element
+            element.raw_element
           end
         end
       end
