@@ -69,7 +69,29 @@ module Pacer
       end
 
       def inspect_string
-        "paths_to(#{ target.inspect })"
+        "paths_to[#{method}](#{ target.inspect }, max_depth: #{ max_depth })"
+      end
+
+      def method
+        if has_cost?
+          if has_estimate?
+            :aStar
+          else
+            :dijkstra
+          end
+        elsif length
+          :with_length
+        elsif find_all == :all and max_depth
+          :all
+        elsif find_all and max_depth
+          :all_simple
+        elsif max_depth
+          if max_hit_count
+            :shortest_with_max_hits
+          else
+            :shortest
+          end
+        end
       end
 
       private
@@ -83,32 +105,25 @@ module Pacer
       end
 
       def build_algo
-        if has_cost?
-          puts 'use aStar'
-          if has_estimate?
-            GraphAlgoFactory.aStar expander, build_cost, build_estimate
-          else
-            GraphAlgoFactory.aStar expander, build_cost
-          end
-        elsif length
-          puts 'use all with length'
+        case method
+        when :aStar
+          GraphAlgoFactory.aStar expander, build_cost, build_estimate
+        when :dijkstra
+          GraphAlgoFactory.dijkstra expander, build_cost
+        when :with_length
           GraphAlgoFactory.pathsWithLength expander, length
-        elsif find_all == :all and max_depth
-          puts 'all paths'
+        when :all_paths
           GraphAlgoFactory.allPaths expander, max_depth
-        elsif find_all and max_depth
-          puts 'use all simple paths'
+        when :simple_paths
           GraphAlgoFactory.allSimplePaths expander, max_depth
-        elsif max_depth
-          if max_hit_count
-            puts 'use shortest, max depth'
-            GraphAlgoFactory.shortestPath expander, max_depth, max_hit_count
-          else
-            puts 'use shortest path'
-            GraphAlgoFactory.shortestPath expander, max_depth
-          end
-        else
+        when :shortest_with_max_hits
+          GraphAlgoFactory.shortestPath expander, max_depth, max_hit_count
+        when :shortest
+          GraphAlgoFactory.shortestPath expander, max_depth
+        when nil
           fail Pacer::ClientError, "Could not choose a path algorithm"
+        else
+          fail Pacer::LogicError, "Unable to build algo for #{ method }"
         end
       end
 
