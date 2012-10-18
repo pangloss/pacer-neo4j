@@ -1,5 +1,3 @@
-require 'yaml'
-
 module Pacer
 
   # Add 'static methods' to the Pacer namespace.
@@ -36,7 +34,7 @@ module Pacer
         end
         shutdown = proc do |g|
           g.blueprints_graph.shutdown
-          Pacer.open_graphs[path] = nil
+          Pacer.open_graphs.delete path
         end
         Neo4j::Graph.new(Pacer::YamlEncoder, open, shutdown)
       else
