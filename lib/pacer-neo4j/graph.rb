@@ -49,8 +49,12 @@ module Pacer
     class Graph < PacerGraph
       private
 
+      def index_properties(type, filters)
+        filters.properties.select { |k, v| key_indices(type).include? k }
+      end
+
       def build_query(type, filters)
-        indexed = filters.properties.select { |k, v| key_indices(type).include? k }
+        indexed = index_properties type, filters
         if indexed.any?
           indexed.map do |k, v|
             if v.is_a? Numeric
@@ -89,6 +93,12 @@ module Pacer
           if query
             route = chain_route back: self, element_type: element_type,
               filter: :lucene, index: lucene_auto_index(element_type), query: query
+            filters.remove_property_keys key_indices(element_type)
+            if filters.any?
+              Pacer::Route.property_filter(route, filters, block)
+            else
+              route
+            end
           elsif filters.route_modules.any?
             mod = filters.route_modules.shift
             Pacer::Route.property_filter(mod.route(self), filters, block)
