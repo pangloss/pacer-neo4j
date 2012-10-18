@@ -38,13 +38,60 @@ module Pacer
           g.blueprints_graph.shutdown
           Pacer.open_graphs[path] = nil
         end
-        PacerGraph.new(Pacer::YamlEncoder, open, shutdown)
+        Neo4j::Graph.new(Pacer::YamlEncoder, open, shutdown)
       else
         # Don't register the new graph so that it won't be automatically closed.
-        PacerGraph.new Pacer::YamlEncoder, proc { graph.neo.new(path_or_graph) }
+        Neo4j::Graph.new Pacer::YamlEncoder, proc { neo.new(path_or_graph) }
       end
     end
   end
 
+  module Neo4j
 
+    class Graph < PacerGraph
+      private
+
+      def build_query(type, filters)
+        indexed = filters.properties.select { |k, v| key_indices(type).include? k }
+        if indexed.any?
+          indexed.map do |k, v|
+            if v.is_a? Numeric
+              "#{k}:#{v}"
+            else
+              %{#{k}:"#{encode_property(v)}"}
+            end
+          end.join " AND "
+        else
+          nil
+        end
+      end
+
+      def neo_graph
+        blueprints_graph.raw_graph
+      end
+
+      def lucene_auto_index(type)
+        if type == :vertex
+          neo_graph.index.getNodeAutoIndexer.getIndexInternal
+        elsif type == :edge
+          neo_graph.index.getRelationshipAutoIndexer.getIndexInternal
+        end
+      end
+
+      def indexed_route(element_type, filters, block)
+        if search_manual_indices
+          super
+        else
+          query = build_query(element_type, filters)
+          if query
+            route = chain_route back: self, element_type: element_type,
+              filter: :lucene, index: lucene_auto_index(element_type), query: query
+          elsif filters.route_modules.any?
+            mod = filters.route_modules.shift
+            Pacer::Route.property_filter(mod.route(self), filters, block)
+          end
+        end
+      end
+    end
+  end
 end
