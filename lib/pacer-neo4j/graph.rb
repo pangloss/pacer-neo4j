@@ -56,7 +56,12 @@ module Pacer
             if v.is_a? Numeric
               "#{k}:#{v}"
             else
-              %{#{k}:"#{encode_property(v)}"}
+              s = encode_property(v)
+              if s.is_a? String and s =~ /\s/
+                %{#{k}:"#{s}"}
+              else
+                "#{k}:#{s}"
+              end
             end
           end.join " AND "
         else
