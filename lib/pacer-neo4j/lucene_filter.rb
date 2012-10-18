@@ -32,6 +32,7 @@ module Pacer
       def source_iterator
         pipe = Pacer::Neo4j::RawVertexWrappingPipe.new graph
         pipe.setStarts result
+        pipe.enablePath(true)
         pipe
       end
 
