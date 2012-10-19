@@ -35,6 +35,10 @@ module Pacer
           end
         end
 
+        def to_a
+          path.to_a
+        end
+
         # Returns the last edge in this path.
         def end_e
           wrap_edge raw_path.lastRelationship
