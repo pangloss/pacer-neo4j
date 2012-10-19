@@ -51,11 +51,11 @@ module Pacer
       #
       # Presumably Neo4j is faster with it set to false.
       def safe_transactions=(b)
-        neo_graph.setCheckElementsInTransaction b
+        blueprints_graph.setCheckElementsInTransaction b
       end
 
       def safe_transactions
-        neo_graph.getCheckElementsInTransaction
+        blueprints_graph.getCheckElementsInTransaction
       end
 
       def key_index_cache(type, name, size = :undefined)
@@ -69,7 +69,7 @@ module Pacer
       private
 
       def index_properties(type, filters)
-        filters.properties.select { |k, v| key_indices(type).include? k }
+        filters.properties.select { |k, v| key_indices(type).include?(k) and not v.nil? }
       end
 
       def build_query(type, filters)
