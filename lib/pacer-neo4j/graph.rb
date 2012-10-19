@@ -83,6 +83,16 @@ module Pacer
         end
       end
 
+      def lucene(query, opts = {})
+        chain_route({
+          index: lucene_auto_index(opts.fetch(:element_type, :vertex)),
+          element_type: :vertex,
+          back: self,
+          filter: :lucene,
+          query: query
+        }.merge opts)
+      end
+
       private
 
       def index_properties(type, filters)
@@ -127,8 +137,7 @@ module Pacer
         else
           query = build_query(element_type, filters)
           if query
-            route = chain_route back: self, element_type: element_type,
-              filter: :lucene, index: lucene_auto_index(element_type), query: query
+            route = lucene query, element_type: element_type
             filters.remove_property_keys key_indices(element_type)
             if filters.any?
               Pacer::Route.property_filter(route, filters, block)
