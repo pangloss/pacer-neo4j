@@ -21,7 +21,7 @@ module Pacer
       # specify one or many edge labels that the path may take in the given direction
       attr_accessor :in_e, :out_e, :both_e
 
-      attr_accessor :path_expander
+      attr_accessor :expander
 
       # use dijkstra unless the below estimate properties are set
       attr_accessor :cost_evaluator, :cost_property, :cost_default, :cost_block
@@ -107,19 +107,19 @@ module Pacer
       def build_algo
         case method
         when :aStar
-          GraphAlgoFactory.aStar expander, build_cost, build_estimate
+          GraphAlgoFactory.aStar build_expander, build_cost, build_estimate
         when :dijkstra
-          GraphAlgoFactory.dijkstra expander, build_cost
+          GraphAlgoFactory.dijkstra build_expander, build_cost
         when :with_length
-          GraphAlgoFactory.pathsWithLength expander, length
+          GraphAlgoFactory.pathsWithLength build_expander, length
         when :all
-          GraphAlgoFactory.allPaths expander, max_depth
+          GraphAlgoFactory.allPaths build_expander, max_depth
         when :all_simple
-          GraphAlgoFactory.allSimplePaths expander, max_depth
+          GraphAlgoFactory.allSimplePaths build_expander, max_depth
         when :shortest_with_max_hits
-          GraphAlgoFactory.shortestPath expander, max_depth, max_hits
+          GraphAlgoFactory.shortestPath build_expander, max_depth, max_hits
         when :shortest
-          GraphAlgoFactory.shortestPath expander, max_depth
+          GraphAlgoFactory.shortestPath build_expander, max_depth
         when nil
           fail Pacer::ClientError, "Could not choose a path algorithm"
         else
@@ -127,9 +127,11 @@ module Pacer
         end
       end
 
-      def expander
-        if path_expander
-          path_expander
+      def build_expander
+        if expander.is_a? Proc
+          BlockPathExpander.new expander, graph
+        elsif expander
+          expander
         else
           e = Traversal.emptyExpander
           [*out_e].each do |label|
