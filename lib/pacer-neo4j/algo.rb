@@ -79,7 +79,14 @@ module Pacer
       def attach_pipe(end_pipe)
         p = PathPipe.new build_algo, graph, target, max_hits
         p.setStarts end_pipe
+        attach_length_filter(p) if length and method != :with_length
         p
+      end
+
+      def attach_length_filter(end_pipe)
+        pipe = Pacer::Pipes::BlockFilterPipe.new(self, proc { |p| p.length == length }, false)
+        pipe.set_starts end_pipe if end_pipe
+        pipe
       end
 
       def inspect_string
