@@ -29,22 +29,22 @@ module Pacer
       attr_accessor :expander, :forward, :reverse
 
       # use dijkstra unless the below estimate properties are set
-      attr_accessor :cost_evaluator, :cost_property, :cost_default, :cost_block
+      attr_accessor :cost, :cost_property, :cost_default
 
-      def cost(property = nil, default = nil, &block)
+      def set_cost(property = nil, default = nil, &block)
         self.cost_property = property
         self.cost_default = default
-        self.cost_block = block
+        self.cost = block
         self
       end
 
       # use the aStar algorithm
-      attr_accessor :estimate_evaluator, :lat_property, :long_property, :estimate_block
+      attr_accessor :estimate, :lat_property, :long_property, :estimate_default
 
-      def estimate(lat = nil, long = nil, &block)
+      def set_estimate(lat = nil, long = nil, &block)
         self.lat_property = lat
         self.long_property = long
-        self.estimate_block = estimate_block
+        self.estimate = block
         self
       end
 
@@ -102,11 +102,11 @@ module Pacer
       private
 
       def has_cost?
-        cost_evaluator or cost_property or cost_block
+        cost or cost_property or cost_default
       end
 
       def has_estimate?
-        estimate_evaluator or (lat_property and long_property) or estimate_block
+        estimate or (lat_property and long_property) or estimate_default
       end
 
       def build_algo
@@ -155,26 +155,32 @@ module Pacer
       end
 
       def build_cost
-        if cost_evaluator
-          cost_evaluator
+        if cost.is_a? Proc
+          BlockCostEvaluator.new cost, graph, cost_default
+        elsif cost
+          cost
         elsif cost_property
           if cost_default
             CommonEvaluators.doubleCostEvaluator cost_property.to_s, cost_default.to_f
           else
             CommonEvaluators.doubleCostEvaluator cost_property.to_s
           end
-        elsif cost_block
-          fail 'not done yet'
+        else
+          fail Pacer::LogicError, "could not build cost"
         end
       end
 
       def build_estimate
-        if estimate_evaluator
-          estimate_evaluator
+        if estimate.is_a? Proc
+          BlockEstimateEvaluator.new estimate, graph, estimate_default
+        elsif estimate
+          estimate
         elsif lat_property and long_property
           CommonEvaluators.geoEstimateEvaluator lat_property.to_s, long_property.to_s
-        elsif estimate_block
-          fail 'not done yet'
+        elsif estimate_default
+          BlockEstimateEvaluator.new proc { estimate_default }, graph, estimate_default
+        else
+          fail Pacer::LogicError, "could not build estimate"
         end
       end
     end

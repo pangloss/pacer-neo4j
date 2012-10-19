@@ -13,7 +13,7 @@ module Pacer
         attr_reader :graph, :raw_path
 
         def initialize(path, graph)
-          @p = path
+          @raw_path = path
           @graph = graph
           @gv = graph.v
           @ge = graph.e
