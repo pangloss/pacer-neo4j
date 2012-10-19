@@ -47,6 +47,25 @@ module Pacer
   module Neo4j
 
     class Graph < PacerGraph
+      # I'm not sure exactly what this impacts but if it is false, many Pacer tests fail.
+      #
+      # Presumably Neo4j is faster with it set to false.
+      def safe_transactions=(b)
+        neo_graph.setCheckElementsInTransaction b
+      end
+
+      def safe_transactions
+        neo_graph.getCheckElementsInTransaction
+      end
+
+      def key_index_cache(type, name, size = :undefined)
+        if size == :undefined
+          lucene_auto_index(type).getCacheCapacity name
+        else
+          lucene_auto_index(type).setCacheCapacity name, size
+        end
+      end
+
       private
 
       def index_properties(type, filters)
