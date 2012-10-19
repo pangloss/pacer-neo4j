@@ -174,6 +174,8 @@ module Pacer
           else
             CommonEvaluators.doubleCostEvaluator cost_property.to_s
           end
+        elsif cost_default
+          CommonEvaluators.doubleCostEvaluator ' not a property ', cost_default.to_f
         else
           fail Pacer::LogicError, "could not build cost"
         end
