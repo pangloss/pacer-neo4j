@@ -8,6 +8,9 @@ require 'pacer-neo4j/version'
 require Pacer::Neo4j::JAR
 
 require 'pacer-neo4j/graph'
+require 'pacer-neo4j/algo/path_pipe'
+require 'pacer-neo4j/algo/block_path_expander'
+require 'pacer-neo4j/algo/traversal_branch_wrapper'
 require 'pacer-neo4j/algo'
 require 'pacer-neo4j/raw_vertex_wrapping_pipe'
 require 'pacer-neo4j/lucene_filter'

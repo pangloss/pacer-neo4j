@@ -15,13 +15,14 @@ module Pacer
       import org.neo4j.graphdb.Direction
       import org.neo4j.kernel.Traversal
       import org.neo4j.graphdb.DynamicRelationshipType
+      include Pacer::Neo4j::Algo
 
       attr_accessor :target
 
       # specify one or many edge labels that the path may take in the given direction
       attr_accessor :in_e, :out_e, :both_e
 
-      attr_accessor :expander
+      attr_accessor :expander, :forward, :reverse
 
       # use dijkstra unless the below estimate properties are set
       attr_accessor :cost_evaluator, :cost_property, :cost_default, :cost_block
@@ -63,7 +64,7 @@ module Pacer
       protected
 
       def attach_pipe(end_pipe)
-        p = Pipe.new build_algo, graph, target, max_hits
+        p = PathPipe.new build_algo, graph, target, max_hits
         p.setStarts end_pipe
         p
       end
@@ -128,8 +129,10 @@ module Pacer
       end
 
       def build_expander
-        if expander.is_a? Proc
-          BlockPathExpander.new expander, graph
+        if forward.is_a? Proc and reverse.is_a? Proc
+          BlockPathExpander.new forward, reverse, graph
+        elsif expander.is_a? Proc
+          BlockPathExpander.new expander, expander, graph
         elsif expander
           expander
         else
@@ -168,63 +171,6 @@ module Pacer
           CommonEvaluators.geoEstimateEvaluator lat_property.to_s, long_property.to_s
         elsif estimate_block
           fail 'not done yet'
-        end
-      end
-
-      class Pipe < Pacer::Pipes::RubyPipe
-        import org.neo4j.graphdb::Node
-        import org.neo4j.graphdb::Relationship
-        import com.tinkerpop.blueprints.impls.neo4j.Neo4jVertex
-        import com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
-
-        attr_reader :algo, :target, :graph, :max_hits
-        attr_accessor :current_paths, :hits
-
-        def initialize(algo, graph, target, max_hits)
-          super()
-          @algo = algo
-          @max_hits = max_hits || -1
-          @graph = graph.blueprints_graph
-          @target = target.element.raw_element
-        end
-
-        def processNextStart
-          next_raw_path.map do |e|
-            if e.is_a? Node
-              Neo4jVertex.new e, graph
-            elsif e.is_a? Relationship
-              Neo4jEdge.new e, graph
-            else
-              e
-            end
-          end
-        end
-
-        def next_raw_path
-          loop do
-            if current_paths
-              if hits == 0
-                self.current_paths = nil
-              elsif current_paths.hasNext
-                self.hits -= 1
-                return current_paths.next
-              else
-                self.current_paths = nil
-              end
-            else
-              self.hits = max_hits
-              self.current_paths = @algo.findAllPaths(next_raw, target).iterator
-            end
-          end
-        end
-
-        def next_raw
-          element = starts.next
-          if element.respond_to? :element
-            element.element.raw_element
-          else
-            element.raw_element
-          end
         end
       end
     end
