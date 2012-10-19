@@ -1,4 +1,33 @@
 module Pacer
+  module Neo4j
+    class Graph
+      def lucene(query, opts = {})
+        opts = { back: self, element_type: :vertex }.merge opts
+        chain_route(opts.merge(query: query,
+                               filter: :lucene,
+                               index: choose_index(opts)))
+      end
+
+      private
+
+      def choose_index(opts)
+        et = opts[:element_type]
+        idx = opts[:index]
+        case idx
+        when String, Symbol
+          index(idx, et).index.raw_index
+        when Pacer::Wrappers::IndexWrapper
+          idx.index.raw_index
+        when com.tinkerpop.blueprints.Index
+          idx.raw_index
+        else
+          lucene_auto_index(et)
+        end
+      end
+    end
+  end
+
+
   module Filter
     module LuceneFilter
       import org.neo4j.index.lucene.QueryContext

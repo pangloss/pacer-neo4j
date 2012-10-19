@@ -83,16 +83,6 @@ module Pacer
         end
       end
 
-      def lucene(query, opts = {})
-        chain_route({
-          index: lucene_auto_index(opts.fetch(:element_type, :vertex)),
-          element_type: :vertex,
-          back: self,
-          filter: :lucene,
-          query: query
-        }.merge opts)
-      end
-
       private
 
       def index_properties(type, filters)
