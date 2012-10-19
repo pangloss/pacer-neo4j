@@ -24,11 +24,14 @@ module Pacer
 
       # note that expander procs *must* return edge(s) that are connected to the end_v of the given path
       #
-      # yields: { |path, state| path.is_a? Pacer::Neo4j::Algo::TraversalBranchWrapper }
-      #
+      # expander yields: { |path, state| path.is_a? Pacer::Neo4j::Algo::TraversalBranchWrapper }
       attr_accessor :expander, :forward, :reverse
 
       # use dijkstra unless the below estimate properties are set
+      #
+      # note that cost proc must return a Numeric unless cost_default is set
+      #
+      # cost yields: { |edge, direction| [:in, :out, :both].include? direction }
       attr_accessor :cost, :cost_property, :cost_default
 
       def set_cost(property = nil, default = nil, &block)
@@ -39,6 +42,10 @@ module Pacer
       end
 
       # use the aStar algorithm
+      #
+      # note that estimate proc must return a Numeric unless estimate_default is set
+      #
+      # estimate yields: { |vertex, goal_vertex| }
       attr_accessor :estimate, :lat_property, :long_property, :estimate_default
 
       def set_estimate(lat = nil, long = nil, &block)
@@ -49,6 +56,8 @@ module Pacer
       end
 
       # use pathsWithLength
+      #
+      # Return only paths of the given length
       attr_accessor :length
 
       # default to shortest_path unless find_all is set
