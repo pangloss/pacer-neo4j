@@ -20,8 +20,12 @@ module Pacer
       attr_accessor :target
 
       # specify one or many edge labels that the path may take in the given direction
-      attr_accessor :in_e, :out_e, :both_e
+      attr_accessor :in_labels, :out_labels, :both_labels
 
+      # note that expander procs *must* return edge(s) that are connected to the end_v of the given path
+      #
+      # yields: { |path, state| path.is_a? Pacer::Neo4j::Algo::TraversalBranchWrapper }
+      #
       attr_accessor :expander, :forward, :reverse
 
       # use dijkstra unless the below estimate properties are set
@@ -137,13 +141,13 @@ module Pacer
           expander
         else
           e = Traversal.emptyExpander
-          [*out_e].each do |label|
+          [*out_labels].each do |label|
             e.add DynamicRelationshipType.withName(label), Direction::OUTGOING
           end
-          [*in_e].each do |label|
+          [*in_labels].each do |label|
             e.add DynamicRelationshipType.withName(label), Direction::INCOMING
           end
-          [*both_e].each do |label|
+          [*both_labels].each do |label|
             e.add DynamicRelationshipType.withName(label), Direction::BOTH
           end
           e
