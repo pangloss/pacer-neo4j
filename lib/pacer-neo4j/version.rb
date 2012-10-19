@@ -1,6 +1,6 @@
 module Pacer
   module Neo4j
-    VERSION = "2.0.1"
+    VERSION = "2.1.0"
     JAR = "pacer-neo4j-#{ VERSION }-standalone.jar"
     JAR_PATH = "lib/#{ JAR }"
     BLUEPRINTS_VERSION = "2.1.0"

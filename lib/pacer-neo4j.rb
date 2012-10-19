@@ -8,3 +8,8 @@ require 'pacer-neo4j/version'
 require Pacer::Neo4j::JAR
 
 require 'pacer-neo4j/graph'
+require 'pacer-neo4j/algo'
+require 'pacer-neo4j/raw_vertex_wrapping_pipe'
+require 'pacer-neo4j/lucene_filter'
+
+Pacer::FunctionResolver.clear_cache
