@@ -6,16 +6,22 @@ module Pacer
         import com.tinkerpop.pipes.Pipe
 
         include PathExpander
-        attr_reader :block, :rev, :graph
+        attr_reader :block, :rev, :graph, :max_depth
 
-        def initialize(block, rev, graph)
+        def initialize(block, rev, graph, max_depth)
           @block = block
           @rev = rev
           @graph = graph
+          @max_depth = max_depth
         end
 
         def expand(path, state)
-          result = block.call TraversalBranchWrapper.new path, graph
+          if max_depth and path.length >= max_depth
+            path.prune!
+            result = []
+          else
+            result = block.call TraversalBranchWrapper.new(path, graph), state
+          end
           source = case result
           when TraversalBranchWrapper
             fail "Don't just return the arguments in your expander, return edges!"

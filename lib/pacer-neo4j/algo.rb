@@ -100,12 +100,12 @@ module Pacer
           else
             :dijkstra
           end
-        elsif length
-          :with_length
         elsif find_all == :all and max_depth
           :all
         elsif find_all and max_depth
           :all_simple
+        elsif length
+          :with_length
         elsif max_depth
           if max_hits
             :shortest_with_max_hits
@@ -150,9 +150,9 @@ module Pacer
 
       def build_expander
         if forward.is_a? Proc and reverse.is_a? Proc
-          BlockPathExpander.new forward, reverse, graph
+          BlockPathExpander.new forward, reverse, graph, max_depth
         elsif expander.is_a? Proc
-          BlockPathExpander.new expander, expander, graph
+          BlockPathExpander.new expander, expander, graph, max_depth
         elsif expander
           expander
         else
