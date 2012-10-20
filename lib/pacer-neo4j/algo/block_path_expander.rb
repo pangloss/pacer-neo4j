@@ -16,14 +16,24 @@ module Pacer
         end
 
         def expand(path, state)
+          path = PathWrapper.new(path, graph)
           if max_depth and path.length >= max_depth
-            path.prune!
             result = []
           else
-            result = block.call TraversalBranchWrapper.new(path, graph), state
+            result = block.call path, state
           end
-          source = case result
-          when TraversalBranchWrapper
+          pipe = Pacer::Pipes::NakedPipe.new
+          pipe.set_starts result_to_enumerable(result)
+          pipe
+        end
+
+        def reverse
+          BlockPathExpander.new rev, block, graph, max_depth
+        end
+
+        def result_to_enumerable(result)
+          case result
+          when PathWrapper
             fail "Don't just return the arguments in your expander, return edges!"
           when Pacer::Route
             if result.element_type == :edge
@@ -44,13 +54,6 @@ module Pacer
           else
             fail "Can't figure out what to do with #{ result.class }"
           end
-          pipe = Pacer::Pipes::NakedPipe.new
-          pipe.set_starts source
-          pipe
-        end
-
-        def reverse
-          BlockPathExpander.new rev, block, graph
         end
       end
     end
