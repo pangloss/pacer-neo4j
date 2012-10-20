@@ -74,6 +74,13 @@ module Pacer
           wrap_vertex raw_path.startNode
         end
 
+        def to_s
+          "#{ start_v.inspect }-(#{length})->#{end_v.inspect}"
+        end
+
+        def inspect
+          "#<Path #{ to_s }>"
+        end
         private
 
         def wrap_vertex(v)

@@ -33,6 +33,14 @@ module Pacer
         def prune!
           raw_path.prune
         end
+
+        def to_s
+          "#{super} num_expanded: #{ num_expanded }#{ continues? ? ' continues' : '' }#{ included? ? ' included' : '' }"
+        end
+
+        def inspect
+          "#<TBR #{to_s}>"
+        end
       end
     end
   end
