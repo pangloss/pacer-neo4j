@@ -81,6 +81,62 @@ module Pacer
         def inspect
           "#<Path #{ to_s }>"
         end
+
+        # skips route creation = faster but less features
+        def out_edges(*args)
+          end_v.out_edges(*args)
+        end
+
+        # skips route creation = faster but less features
+        def in_edges(*args)
+          end_v.in_edges(*args)
+        end
+
+        # skips route creation = faster but less features
+        def both_edges(*args)
+          end_v.both_edges(*args)
+        end
+
+        # skips route creation = faster but less features
+        def out_vertices(*args)
+          end_v.out_vertices(*args)
+        end
+
+        # skips route creation = faster but less features
+        def in_vertices(*args)
+          end_v.in_vertices(*args)
+        end
+
+        # skips route creation = faster but less features
+        def both_vertices(*args)
+          end_v.both_vertices(*args)
+        end
+
+
+        def out_e(*args)
+          end_v.out_e(*args)
+        end
+
+        def in_e(*args)
+          end_v.in_e(*args)
+        end
+
+        def both_e(*args)
+          end_v.both_e(*args)
+        end
+
+        def out(*args)
+          end_v.out(*args)
+        end
+
+        def in(*args)
+          end_v.in(*args)
+        end
+
+        def both(*args)
+          end_v.both(*args)
+        end
+
         private
 
         def wrap_vertex(v)
