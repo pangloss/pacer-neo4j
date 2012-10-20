@@ -158,13 +158,13 @@ module Pacer
         else
           e = Traversal.emptyExpander
           [*out_labels].each do |label|
-            e.add DynamicRelationshipType.withName(label), Direction::OUTGOING
+            e.add DynamicRelationshipType.withName(label.to_s), Direction::OUTGOING
           end
           [*in_labels].each do |label|
-            e.add DynamicRelationshipType.withName(label), Direction::INCOMING
+            e.add DynamicRelationshipType.withName(label.to_s), Direction::INCOMING
           end
           [*both_labels].each do |label|
-            e.add DynamicRelationshipType.withName(label), Direction::BOTH
+            e.add DynamicRelationshipType.withName(label.to_s), Direction::BOTH
           end
           e
         end
