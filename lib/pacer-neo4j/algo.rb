@@ -1,12 +1,21 @@
 module Pacer
-  module Core::Graph::VerticesRoute
-    def path_to(to_v, opts = {})
-      chain_route({transform: :path_finder, element_type: :path, max_hits: 1, target: to_v}.merge opts)
+  module Core::Graph
+    module VerticesRoute
+      def path_to(to_v, opts = {})
+        route = self
+        route = make_pairs(to_v) if to_v.is_a? Enumerable
+        route.chain_route({transform: :path_finder, element_type: :path, max_hits: 1, target: to_v}.merge opts)
+      end
+
+      def paths_to(to_v, opts = {})
+        route = self
+        route = make_pairs(to_v) if to_v.is_a? Enumerable
+        route.chain_route({transform: :path_finder, element_type: :path, target: to_v}.merge opts)
+      end
     end
-    def paths_to(to_v, opts = {})
-      chain_route({transform: :path_finder, element_type: :path, target: to_v}.merge opts)
     end
   end
+
 
   module Transform
     module PathFinder
