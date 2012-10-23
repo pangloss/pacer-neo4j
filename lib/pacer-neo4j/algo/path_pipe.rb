@@ -15,7 +15,7 @@ module Pacer
           @algo = algo
           @max_hits = max_hits || -1
           @graph = graph.blueprints_graph
-          @target = target.element.raw_element
+          @target = unwrap target if target
         end
 
         def processNextStart
@@ -49,12 +49,29 @@ module Pacer
         end
 
         def next_raw
-          element = starts.next
-          if element.respond_to? :element
-            element.element.raw_element
+          unwrap starts.next
+        end
+
+        def unwrap(vertex)
+          if vertex.respond_to? :element
+            vertex.element.raw_element
           else
-            element.raw_element
+            vertex.raw_element
           end
+        end
+      end
+
+      class PathFromPathPipe < PathPipe
+        attr_writer :target
+
+        def initialize(algo, graph, max_hits)
+          super(algo, graph, nil, max_hits)
+        end
+
+        def next_raw
+          path = starts.next
+          self.target = unwrap path.last
+          unwrap path.first
         end
       end
     end

@@ -13,6 +13,11 @@ module Pacer
         route.chain_route({transform: :path_finder, element_type: :path, target: to_v}.merge opts)
       end
     end
+
+    module PathRoute
+      def expand(opts = {})
+        chain_route({transform: :path_finder, element_type: :path}.merge opts)
+      end
     end
   end
 
@@ -86,7 +91,11 @@ module Pacer
       protected
 
       def attach_pipe(end_pipe)
-        p = PathPipe.new build_algo, graph, target, max_hits
+        if back.element_type == :path
+          p = PathFromPathPipe.new build_algo, graph, max_hits
+        else
+          p = PathPipe.new build_algo, graph, target, max_hits
+        end
         p.setStarts end_pipe
         attach_length_filter(p) if length and method != :with_length
         p
@@ -99,7 +108,11 @@ module Pacer
       end
 
       def inspect_string
-        "paths_to[#{method}](#{ target.inspect }, max_depth: #{ max_depth })"
+        if back.element_type == :path
+          "expand[#{method}](max_depth: #{ max_depth })"
+        else
+          "paths_to[#{method}](#{ target.inspect }, max_depth: #{ max_depth })"
+        end
       end
 
       def method
