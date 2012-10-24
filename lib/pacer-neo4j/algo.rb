@@ -33,8 +33,44 @@ module Pacer
 
       def help(opt = nil)
         case opt
+when nil
+  puts <<HELP
+Finds paths between pairs of vertices. The algorithm used depends on the
+options specified. All supported path finding algorithms including in Neo4j 1.8
+are included, and all of their documented usages are possible.
+
+USAGE:
+
+vertices.path_to(targets, options = {})
+    Find the first path from each vertex to each target vertex
+
+vertices.paths_to(targets, options = {})
+    Find multiple paths from each vertex to each target vertex
+
+paths.expand(options = {})
+    Find multiple paths from the first vertex in each path to the last vertex
+    in each path.
+
+All options are optional!
+
+
+More details:
+
+help :options      for simple path algorithms and other options
+  find_all, cyclical, length, max_depth, max_hits
+
+help :cost         for Dijkstra and aStar
+  cost, cost_property, cost_default
+
+help :estimate     for aStar
+  estimate, estimate_default, lat_property, long_property
+
+help :expansion    customize how any path is expanded
+  in_labels, out_labels, both_labels, expander, forward, reverse
+
+HELP
 when :path
-          puts <<HELP
+  puts <<HELP
 Details for path:         expander: proc { |path, state| edges }
 
 #end_v        Returns the end vertex of this path.
@@ -164,42 +200,8 @@ Estimate options
 
 HELP
 else
-          puts <<HELP
-Finds paths between pairs of vertices. The algorithm used depends on the
-options specified. All supported path finding algorithms including in Neo4j 1.8
-are included, and all of their documented usages are possible.
-
-USAGE:
-
-vertices.path_to(targets, options = {})
-    Find the first path from each vertex to each target vertex
-
-vertices.paths_to(targets, options = {})
-    Find multiple paths from each vertex to each target vertex
-
-paths.expand(options = {})
-    Find multiple paths from the first vertex in each path to the last vertex
-    in each path.
-
-All options are optional!
-
-
-More details:
-
-help :options      for simple path algorithms and other options
-  find_all, cyclical, length, max_depth, max_hits
-
-help :cost         for Dijkstra and aStar
-  cost, cost_property, cost_default
-
-help :estimate     for aStar
-  estimate, estimate_default, lat_property, long_property
-
-help :expansion    customize how any path is expanded
-  in_labels, out_labels, both_labels, expander, forward, reverse
-
-HELP
-        end
+  super
+end
         description
       end
 
