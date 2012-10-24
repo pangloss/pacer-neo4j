@@ -70,8 +70,8 @@ module Pacer
 
         def next_raw
           path = starts.next
-          self.target = unwrap path.last
-          unwrap path.first
+          self.target = unwrap path.to_a.last
+          unwrap path[0]
         end
       end
     end
