@@ -31,6 +31,200 @@ module Pacer
       import org.neo4j.graphdb.DynamicRelationshipType
       include Pacer::Neo4j::Algo
 
+      def help(opt = nil)
+        case opt
+when :path
+          puts <<HELP
+Details for path:         expander: proc { |path, state| edges }
+
+#end_v        Returns the end vertex of this path.
+#start_v      Returns the start vertex of this path.
+#length       Returns the length of this path.
+#path         Iterates through both the vertices and edges of this path in
+              order.
+#end_e        Returns the last edge in this path.
+#v            Returns all the vertices in this path starting from the start
+              vertex going forward towards the end vertex.
+#e            Returns all the edges in between the vertices which this path
+              consists of.
+#reverse_v    Like #v but reversed.
+#reverse_e    Like #e but reversed.
+
+The following methods all proxy to the vertex returned by #end_v: and behave
+exactly like standard Pacer Vertex methods.
+
+The iterators can be combined with the + operator.
+
+Fast edge iterators:
+  #out_edges(*args)
+  #in_edges(*args)
+  #both_edges(*args)
+
+Fast vertex iterators:
+  #out_vertices(*args)
+  #in_vertices(*args)
+  #both_vertices(*args)
+
+Edge routes:
+  #out_e(*args)
+  #in_e(*args)
+  #both_e(*args)
+
+Vertex routes:
+  #out(*args)
+  #in(*args)
+  #both(*args)
+
+HELP
+when :expansion
+  puts <<HELP
+Path expansion options:
+
+  By default, all edges will be followed. By specifying expansion rules you can
+  limit which paths are attempted. All algorithms use the same expanders so
+  these options do not effect the algorithm selection.
+
+  in_labels: label | [labels]    only follow : in edges  : with the given label(s)
+  out_labels:                                : out edges :
+  both_labels:                               : edges     :
+      These options can be combined.
+
+  Expanders search forward from the start vertex and backwards from the target
+  vertex. Either expander
+
+  expander: Proc | PathExpander   Custom rule for forward search
+      If no reverse is specified, will be used for reverse too.
+  forward:                        synonym for the expander option
+  reverse:  Proc | PathExpander   Custom rule for the reverse search
+
+      proc { |path, state| edges }:
+        path is a Pacer::Neo4j::Algo::PathWrapper - help(:path) for details
+        The proc must simply return an Enumerable of edges that the
+
+HELP
+when :options
+  puts <<HELP
+Simple options:
+
+  find_all: Boolean    Find all non-cyclical paths.
+      Algorithm: allSimplePaths
+
+  cyclical: Boolean    Find all paths including cyclical ones.
+      Algorithm: allPaths
+
+  length: Number       Number of edges that the path contains.
+      Algorithm: pathsWithLength
+      Returns only paths of the specified length.
+
+  max_depth: Number    Number of edges to search in a potential path.
+      Default: 5
+      Limits how many edges will be traversed searching for a path. Higher
+      numbers can take exponentially longer, I think.  Does not apply to aStar,
+      Dijkstra, or pathsWithLength algorithms.
+
+      Required for find_all, cyclical, and shortest path algorithms.
+
+  max_hits: Number     Maximum number of paths to find for each pair of vertices.
+      #path_to defaults this to 1. All algorithms use this but only
+      some support it natively in Neo4j's implementations.
+
+
+HELP
+when :cost
+  puts <<HELP
+Cost options:
+
+  Specifying these chooses the Dijkstra algorithm unless an estimate is also
+  specified.
+
+  cost: Proc | CostEvaluator   Calculate the cost for this edge.
+      Must return a Numeric unless cost_default is set.
+      proc { |edge, direction| Float }:
+        direction is either :in or :out.
+
+  cost_property: String        get the cost from the given edge property
+  cost_default: Float          default if the property isn't there
+
+HELP
+when :estimate
+  puts <<HELP
+Estimate options
+  Specifying these together with cost chooses the a* / aStar algorithm.
+
+  estimate:
+      Must return a Numeric unless estimate_default is set.
+      proc { |vertex, goal_vertex| Float }
+
+  estimate_default: Float   only works with the proc estimate
+
+  lat_property: String      latitude property name
+  long_property: String     longitude property name
+      Use latitude and longitude if all estimated vertices have the necessary
+      properties.
+
+HELP
+else
+          puts <<HELP
+Finds paths between pairs of vertices. The algorithm used depends on the
+options specified. All supported path finding algorithms including in Neo4j 1.8
+are included, and all of their documented usages are possible.
+
+USAGE:
+
+vertices.path_to(targets, options = {})
+    Find the first path from each vertex to each target vertex
+
+vertices.paths_to(targets, options = {})
+    Find multiple paths from each vertex to each target vertex
+
+paths.expand(options = {})
+    Find multiple paths from the first vertex in each path to the last vertex
+    in each path.
+
+All options are optional!
+
+
+More details:
+
+help :options      for simple path algorithms and other options
+  find_all, cyclical, length, max_depth, max_hits
+
+help :cost         for Dijkstra and aStar
+  cost, cost_property, cost_default
+
+help :estimate     for aStar
+  estimate, estimate_default, lat_property, long_property
+
+help :expansion    customize how any path is expanded
+  in_labels, out_labels, both_labels, expander, forward, reverse
+
+HELP
+        end
+        description
+      end
+
+      def method
+        if has_cost?
+          if has_estimate?
+            :aStar
+          else
+            :dijkstra
+          end
+        elsif cyclical and max_depth
+          :all
+        elsif find_all and max_depth
+          :all_simple
+        elsif length
+          :with_length
+        elsif max_depth
+          if max_hits
+            :shortest_with_max_hits
+          else
+            :shortest
+          end
+        end
+      end
+
       attr_accessor :target
 
       # specify one or many edge labels that the path may take in the given direction
@@ -38,7 +232,7 @@ module Pacer
 
       # note that expander procs *must* return edge(s) that are connected to the end_v of the given path
       #
-      # expander yields: { |path, state| path.is_a? Pacer::Neo4j::Algo::TraversalBranchWrapper }
+      # expander yields: { |path, state| path.is_a? Pacer::Neo4j::Algo::PathWrapper }
       attr_accessor :expander, :forward, :reverse
 
       # use dijkstra unless the below estimate properties are set
@@ -84,9 +278,8 @@ module Pacer
       attr_accessor :max_hits
 
       # Possible values:
-      # true    - allPaths
-      # :simple - allSimplePaths
       attr_accessor :find_all
+      attr_accessor :cyclical
 
       protected
 
@@ -112,28 +305,6 @@ module Pacer
           "expand[#{method}](max_depth: #{ max_depth })"
         else
           "paths_to[#{method}](#{ target.inspect }, max_depth: #{ max_depth })"
-        end
-      end
-
-      def method
-        if has_cost?
-          if has_estimate?
-            :aStar
-          else
-            :dijkstra
-          end
-        elsif find_all == :all and max_depth
-          :all
-        elsif find_all and max_depth
-          :all_simple
-        elsif length
-          :with_length
-        elsif max_depth
-          if max_hits
-            :shortest_with_max_hits
-          else
-            :shortest
-          end
         end
       end
 
