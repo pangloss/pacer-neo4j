@@ -31,6 +31,10 @@ module Pacer
       import org.neo4j.graphdb.DynamicRelationshipType
       include Pacer::Neo4j::Algo
 
+      def after_initialize
+        fail Pacer::ClientError, 'graph must be neo4j' unless graph.vendor == 'neo4j'
+      end
+
       def help(opt = nil)
         case opt
 when nil
@@ -53,6 +57,7 @@ paths.expand(options = {})
 
 All options are optional!
 
+These methods only work on Neo4j graphs.
 
 More details:
 
