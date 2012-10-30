@@ -1,20 +1,28 @@
 module Pacer
   module Core
     module StringRoute
-      def cypher(opts = {})
+      def raw_cypher(opts = {})
         chain_route({element_type: :cypher, transform: Pacer::Transform::Cypher}.merge opts)
+      end
+
+      def cypher(opts = {})
+        raw_cypher.paths(opts)
       end
     end
 
     module Graph
       module VerticesRoute
-        def cypher(query, elements_per_query = nil)
+        def raw_cypher(query, elements_per_query = nil)
           reducer(element_type: :array).
             enter { [] }.
             leave { |x, a| x.nil? or (elements_per_query and a.length % elements_per_query == 0) }.
             reduce { |v, ids| ids << v.element_id }.
           map(element_type: :string) { |a| "start v=node(#{a.join(',')}) #{ query }"}.
-          cypher
+          raw_cypher
+        end
+
+        def cypher(query, elements_per_query = nil)
+          raw_cypher(query, elements_per_query).paths
         end
       end
     end
