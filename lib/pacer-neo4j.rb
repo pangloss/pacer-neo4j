@@ -8,6 +8,7 @@ require 'pacer-neo4j/version'
 require Pacer::Neo4j::JAR
 
 require 'pacer-neo4j/graph'
+require 'pacer-neo4j/algo/wrapping'
 require 'pacer-neo4j/algo/path_pipe'
 require 'pacer-neo4j/algo/block_cost_evaluator'
 require 'pacer-neo4j/algo/block_estimate_evaluator'

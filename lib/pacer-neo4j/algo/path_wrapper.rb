@@ -6,9 +6,7 @@ module Pacer
       #
       # Note that I have removed methods that I didn't understand, assuming they are internal.
       class PathWrapper
-        import org.neo4j.graphdb.Node
-        import com.tinkerpop.blueprints.impls.neo4j.Neo4jVertex
-        import com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
+        include Wrapping
 
         attr_reader :graph, :raw_path
 
@@ -26,13 +24,7 @@ module Pacer
 
         # Iterates through both the vertices and edges of this path in order.
         def path
-          raw_path.iterator.to_route.map(graph: graph, element_type: :mixed) do |e|
-            if e.is_a? Node
-              wrap_vertex e
-            else
-              wrap_edge e
-            end
-          end
+          wrap_path raw_path.iterator
         end
 
         def to_a
@@ -135,16 +127,6 @@ module Pacer
 
         def both(*args)
           end_v.both(*args)
-        end
-
-        private
-
-        def wrap_vertex(v)
-          Pacer::Wrappers::VertexWrapper.new graph, Neo4jVertex.new(v, graph.blueprints_graph)
-        end
-
-        def wrap_edge(e)
-          Pacer::Wrappers::EdgeWrapper.new graph, Neo4jEdge.new(e, graph.blueprints_graph)
         end
       end
     end

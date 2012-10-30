@@ -20,6 +20,10 @@ module Pacer
         end
       end
 
+      def neo_graph
+        blueprints_graph.raw_graph
+      end
+
       private
 
       def index_properties(type, filters)
@@ -44,10 +48,6 @@ module Pacer
         else
           nil
         end
-      end
-
-      def neo_graph
-        blueprints_graph.raw_graph
       end
 
       def lucene_auto_index(type)
