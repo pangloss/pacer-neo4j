@@ -13,10 +13,11 @@ module Pacer
       end
 
       def key_index_cache(type, name, size = :undefined)
+        indexer = lucene_auto_index(type)
         if size == :undefined
-          lucene_auto_index(type).getCacheCapacity name
+          indexer.getCacheCapacity name
         else
-          lucene_auto_index(type).setCacheCapacity name, size
+          indexer.setCacheCapacity name, size
         end
       end
 
@@ -52,10 +53,11 @@ module Pacer
 
       def lucene_auto_index(type)
         if type == :vertex
-          neo_graph.index.getNodeAutoIndexer.getIndexInternal
+          indexer = neo_graph.index.getNodeAutoIndexer
         elsif type == :edge
-          neo_graph.index.getRelationshipAutoIndexer.getIndexInternal
+          indexer = neo_graph.index.getRelationshipAutoIndexer
         end
+        indexer.getAutoIndex
       end
 
       def indexed_route(element_type, filters, block)
