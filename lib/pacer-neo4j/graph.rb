@@ -67,7 +67,7 @@ module Pacer
         else
           query = build_query(element_type, filters)
           if query
-            route = lucene query, element_type: element_type
+            route = lucene query, element_type: element_type, extensions: filters.extensions, wrapper: filters.wrapper
             filters.remove_property_keys key_indices(element_type)
             if filters.any?
               Pacer::Route.property_filter(route, filters, block)
