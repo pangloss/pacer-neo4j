@@ -35,6 +35,7 @@ module Pacer
         indexed = index_properties type, filters
         if indexed.any?
           indexed.map do |k, v|
+            k = k.to_s.gsub '/', '\\/'
             if v.is_a? Numeric
               "#{k}:#{v}"
             else
