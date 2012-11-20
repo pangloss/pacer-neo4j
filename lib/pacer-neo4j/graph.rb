@@ -25,6 +25,34 @@ module Pacer
         blueprints_graph.raw_graph
       end
 
+      def on_commit(&block)
+        return unless block
+        TransactionEventHandler.new(self).tap do |h|
+          h.on_commit = block
+          neo_graph.registerTransactionEventHandler h
+        end
+      end
+
+      def on_rollback(&block)
+        return unless block
+        TransactionEventHandler.new(self).tap do |h|
+          h.on_rollback = block
+          neo_graph.registerTransactionEventHandler h
+        end
+      end
+
+      def before_commit(&block)
+        return unless block
+        TransactionEventHandler.new(self).tap do |h|
+          h.before_commit = block
+          neo_graph.registerTransactionEventHandler h
+        end
+      end
+
+      def drop_handler(h)
+        neo_graph.unregisterTransactionEventHandler h
+      end
+
       private
 
       def index_properties(type, filters)

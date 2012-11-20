@@ -18,6 +18,8 @@ require 'pacer-neo4j/algo/traversal_branch_wrapper'
 require 'pacer-neo4j/algo'
 require 'pacer-neo4j/raw_vertex_wrapping_pipe'
 require 'pacer-neo4j/lucene_filter'
+require 'pacer-neo4j/transaction_event_handler'
+require 'pacer-neo4j/tx_data_wrapper'
 
 Pacer::FunctionResolver.clear_cache
 
