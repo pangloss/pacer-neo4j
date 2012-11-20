@@ -33,10 +33,16 @@ module Pacer
         end
       end
 
-      def on_rollback(&block)
+      # This is actually only called if the commit fails and then it internally tries to
+      # rollback. It seems that it's actually possible for it to fail to rollback here, too...
+      #
+      # An exception in before_commit can definitely trigger this.
+      #
+      # Regular rollbacks do not get seen by the transaction system and no callback happens.
+      def on_commit_failed(&block)
         return unless block
         TransactionEventHandler.new(self).tap do |h|
-          h.on_rollback = block
+          h.on_commit_failed = block
           neo_graph.registerTransactionEventHandler h
         end
       end
