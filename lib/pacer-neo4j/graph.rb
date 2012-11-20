@@ -12,6 +12,20 @@ module Pacer
         blueprints_graph.getCheckElementsInTransaction
       end
 
+      def allow_auto_tx=(b)
+        blueprints_graph.allow_auto_tx = b
+      end
+
+      def allow_auto_tx
+        blueprints_graph.allow_auto_tx
+      end
+
+      def transaction(&block)
+        blueprints_graph.transaction do
+          super(&block)
+        end
+      end
+
       def key_index_cache(type, name, size = :undefined)
         indexer = lucene_auto_index(type)
         if size == :undefined
