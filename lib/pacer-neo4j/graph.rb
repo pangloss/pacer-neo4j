@@ -20,9 +20,9 @@ module Pacer
         blueprints_graph.allow_auto_tx
       end
 
-      def transaction(&block)
+      def transaction(*args, &block)
         blueprints_graph.transaction do
-          super(&block)
+          super
         end
       end
 
