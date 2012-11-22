@@ -44,15 +44,17 @@ module Pacer
       if path_or_graph.is_a? String
         path = File.expand_path(path_or_graph)
         open = proc do
-          graph = Pacer.open_graphs[path]
-          unless graph
+          raw_graph = Pacer.open_graphs[path]
+          if raw_graph
+            graph = Pacer::Neo4j::BlueprintsGraph.new(raw_graph)
+          else
             if args
               graph = Pacer::Neo4j::BlueprintsGraph.new(path, args.to_hash_map)
             else
               graph = Pacer::Neo4j::BlueprintsGraph.new(path)
             end
             graph.allow_auto_tx = true
-            Pacer.open_graphs[path] = graph
+            Pacer.open_graphs[path] = graph.raw_graph
             graph.setCheckElementsInTransaction true
           end
           graph
