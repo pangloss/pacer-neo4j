@@ -291,7 +291,7 @@ end
       protected
 
       def attach_pipe(end_pipe)
-        if back.element_type == :path
+        if back and back.element_type == :path
           p = PathFromPathPipe.new build_algo, graph, max_hits
         else
           p = PathPipe.new build_algo, graph, target, max_hits
@@ -308,7 +308,7 @@ end
       end
 
       def inspect_string
-        if back.element_type == :path
+        if back and back.element_type == :path
           "expand[#{method}](max_depth: #{ max_depth })"
         else
           "paths_to[#{method}](#{ target.inspect }, max_depth: #{ max_depth })"
