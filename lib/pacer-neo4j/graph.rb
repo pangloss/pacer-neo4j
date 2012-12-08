@@ -88,7 +88,7 @@ module Pacer
               "#{k}:#{v}"
             else
               s = encode_property(v)
-              if s.is_a?(String) and s =~ /[\s:"'\+!\(\)\.]/
+              if s.is_a? String
                 "#{k}:#{s.inspect}"
               else
                 "#{k}:#{s}"
