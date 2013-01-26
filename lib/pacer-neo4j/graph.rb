@@ -86,6 +86,12 @@ module Pacer
             k = k.to_s.gsub '/', '\\/'
             if v.is_a? Numeric
               "#{k}:#{v}"
+            elsif v.is_a? Range
+              if v.min.is_a? Numeric
+                "#{k}:[#{v.min} TO #{v.max}]"
+              else
+                "#{k}:{#{v.min.inspect} TO #{v.max.inspect}}"
+              end
             else
               s = encode_property(v)
               if s.is_a? String and s =~ /[\t :"']/
