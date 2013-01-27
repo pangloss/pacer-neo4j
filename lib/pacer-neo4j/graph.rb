@@ -1,6 +1,9 @@
 module Pacer
   module Neo4j
     class Graph < PacerGraph
+      JDate = java.util.Date
+      import java.text.SimpleDateFormat
+
       # I'm not sure exactly what this impacts but if it is false, many Pacer tests fail.
       #
       # Presumably Neo4j is faster with it set to false.
@@ -84,25 +87,35 @@ module Pacer
         if indexed.any?
           indexed.map do |k, v|
             k = k.to_s.gsub '/', '\\/'
-            if v.is_a? Numeric
-              "#{k}:#{v}"
-            elsif v.is_a? Range
-              if v.min.is_a? Numeric
-                "#{k}:[#{v.min} TO #{v.max}]"
+            if v.is_a? Range
+              encoded = encode_property(v.min)
+              if encoded.is_a? JDate
+                "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
               else
-                "#{k}:{#{v.min.inspect} TO #{v.max.inspect}}"
+                "#{k}:{#{lucene_value v.min} TO #{lucene_value v.max}}"
               end
             else
-              s = encode_property(v)
-              if s.is_a? String and s =~ /[\t :"']/
-                %{#{k}:#{s.inspect}}
-              else
-                "#{k}:#{s}"
-              end
+              "#{k}:#{lucene_value v}"
             end
           end.join " AND "
         else
           nil
+        end
+      end
+
+      def lucene_value(v)
+        s = encode_property(v)
+        if s.is_a? JDate
+          f = SimpleDateFormat.new 'yyyyMMddHHmmssSSS'
+          f.format s
+        elsif s
+          if s.is_a? String and s =~ /[\t :"']/
+            s.inspect
+          else s
+            s
+          end
+        else
+          'NULL'
         end
       end
 
