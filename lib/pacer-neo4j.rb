@@ -19,6 +19,9 @@ require 'pacer-neo4j/algo/cypher_transform'
 require 'pacer-neo4j/algo'
 require 'pacer-neo4j/raw_vertex_wrapping_pipe'
 require 'pacer-neo4j/lucene_filter'
+require 'pacer-neo4j/transaction_event_handler'
+require 'pacer-neo4j/tx_data_wrapper'
+require 'pacer-neo4j/blueprints_graph'
 
 Pacer::FunctionResolver.clear_cache
 
@@ -39,18 +42,20 @@ module Pacer
     # `graph.setCheckElementsInTransaction(false)` to disable the
     # feature.
     def neo4j(path_or_graph, args = nil)
-      bp_neo_class = com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph
       if path_or_graph.is_a? String
         path = File.expand_path(path_or_graph)
         open = proc do
-          graph = Pacer.open_graphs[path]
-          unless graph
+          raw_graph = Pacer.open_graphs[path]
+          if raw_graph
+            graph = Pacer::Neo4j::BlueprintsGraph.new(raw_graph)
+          else
             if args
-              graph = bp_neo_class.new(path, args.to_hash_map)
+              graph = Pacer::Neo4j::BlueprintsGraph.new(path, args.to_hash_map)
             else
-              graph = bp_neo_class.new(path)
+              graph = Pacer::Neo4j::BlueprintsGraph.new(path)
             end
-            Pacer.open_graphs[path] = graph
+            graph.allow_auto_tx = true
+            Pacer.open_graphs[path] = graph.raw_graph
             graph.setCheckElementsInTransaction true
           end
           graph
@@ -62,7 +67,7 @@ module Pacer
         Neo4j::Graph.new(Pacer::YamlEncoder, open, shutdown)
       else
         # Don't register the new graph so that it won't be automatically closed.
-        Neo4j::Graph.new Pacer::YamlEncoder, proc { bp_neo_class.new(path_or_graph) }
+        Neo4j::Graph.new Pacer::YamlEncoder, proc { Pacer::Neo4j::BlueprintsGraph.new(path_or_graph) }
       end
     end
 

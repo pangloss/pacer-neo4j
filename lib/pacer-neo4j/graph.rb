@@ -1,6 +1,9 @@
 module Pacer
   module Neo4j
     class Graph < PacerGraph
+      JDate = java.util.Date
+      import java.text.SimpleDateFormat
+
       # I'm not sure exactly what this impacts but if it is false, many Pacer tests fail.
       #
       # Presumably Neo4j is faster with it set to false.
@@ -12,16 +15,65 @@ module Pacer
         blueprints_graph.getCheckElementsInTransaction
       end
 
+      def allow_auto_tx=(b)
+        blueprints_graph.allow_auto_tx = b
+      end
+
+      def allow_auto_tx
+        blueprints_graph.allow_auto_tx
+      end
+
+      def transaction(*args, &block)
+        blueprints_graph.transaction do
+          super
+        end
+      end
+
       def key_index_cache(type, name, size = :undefined)
+        indexer = lucene_auto_index(type)
         if size == :undefined
-          lucene_auto_index(type).getCacheCapacity name
+          indexer.getCacheCapacity name
         else
-          lucene_auto_index(type).setCacheCapacity name, size
+          indexer.setCacheCapacity name, size
         end
       end
 
       def neo_graph
         blueprints_graph.raw_graph
+      end
+
+      def on_commit(&block)
+        return unless block
+        TransactionEventHandler.new(self).tap do |h|
+          h.on_commit = block
+          neo_graph.registerTransactionEventHandler h
+        end
+      end
+
+      # This is actually only called if the commit fails and then it internally tries to
+      # rollback. It seems that it's actually possible for it to fail to rollback here, too...
+      #
+      # An exception in before_commit can definitely trigger this.
+      #
+      # Regular rollbacks do not get seen by the transaction system and no callback happens.
+      def on_commit_failed(&block)
+        return unless block
+        TransactionEventHandler.new(self).tap do |h|
+          h.on_commit_failed = block
+          neo_graph.registerTransactionEventHandler h
+        end
+      end
+
+      def before_commit(&block)
+        return unless block
+        TransactionEventHandler.new(self).tap do |h|
+          h.before_commit = block
+          neo_graph.registerTransactionEventHandler h
+        end
+      end
+
+      def drop_handler(h)
+        neo_graph.unregisterTransactionEventHandler h
       end
 
       private
@@ -34,15 +86,16 @@ module Pacer
         indexed = index_properties type, filters
         if indexed.any?
           indexed.map do |k, v|
-            if v.is_a? Numeric
-              "#{k}:#{v}"
-            else
-              s = encode_property(v)
-              if s.is_a? String and s =~ /\s/
-                %{#{k}:"#{s}"}
+            k = k.to_s.gsub '/', '\\/'
+            if v.is_a? Range
+              encoded = encode_property(v.min)
+              if encoded.is_a? JDate
+                "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
               else
-                "#{k}:#{s}"
+                "#{k}:{#{lucene_value v.min} TO #{lucene_value v.max}}"
               end
+            else
+              "#{k}:#{lucene_value v}"
             end
           end.join " AND "
         else
@@ -50,12 +103,29 @@ module Pacer
         end
       end
 
+      def lucene_value(v)
+        s = encode_property(v)
+        if s.is_a? JDate
+          f = SimpleDateFormat.new 'yyyyMMddHHmmssSSS'
+          f.format s
+        elsif s
+          if s.is_a? String and s =~ /[\t :"']/
+            s.inspect
+          else s
+            s
+          end
+        else
+          'NULL'
+        end
+      end
+
       def lucene_auto_index(type)
         if type == :vertex
-          neo_graph.index.getNodeAutoIndexer.getIndexInternal
+          indexer = neo_graph.index.getNodeAutoIndexer
         elsif type == :edge
-          neo_graph.index.getRelationshipAutoIndexer.getIndexInternal
+          indexer = neo_graph.index.getRelationshipAutoIndexer
         end
+        indexer.getAutoIndex
       end
 
       def indexed_route(element_type, filters, block)
@@ -64,7 +134,7 @@ module Pacer
         else
           query = build_query(element_type, filters)
           if query
-            route = lucene query, element_type: element_type
+            route = lucene query, element_type: element_type, extensions: filters.extensions, wrapper: filters.wrapper
             filters.remove_property_keys key_indices(element_type)
             if filters.any?
               Pacer::Route.property_filter(route, filters, block)
