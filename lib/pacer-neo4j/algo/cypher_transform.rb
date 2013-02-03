@@ -6,7 +6,7 @@ module Pacer
       end
 
       def cypher(opts = {})
-        raw_cypher.paths(opts)
+        raw_cypher(opts).paths
       end
     end
 
@@ -14,11 +14,11 @@ module Pacer
       module VerticesRoute
         def raw_cypher(query, elements_per_query = nil)
           reducer(element_type: :array).
-            enter { [] }.
+            enter { Set[] }.
             leave { |x, a| x.nil? or (elements_per_query and a.length % elements_per_query == 0) }.
             reduce { |v, ids| ids << v.element_id }.
-          map(element_type: :string) { |a| "start v=node(#{a.join(',')}) #{ query }"}.
-          raw_cypher
+          map(element_type: :string) { |a| "start v=node(#{a.to_a.join(',')}) #{ query }"}.
+            raw_cypher
         end
 
         def cypher(query, elements_per_query = nil)
