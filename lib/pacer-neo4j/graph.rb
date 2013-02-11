@@ -29,6 +29,10 @@ module Pacer
         end
       end
 
+      def cypher(query)
+        [query].to_route(element_type: :string, graph: self).cypher
+      end
+
       def key_index_cache(type, name, size = :undefined)
         indexer = lucene_auto_index(type)
         if size == :undefined
