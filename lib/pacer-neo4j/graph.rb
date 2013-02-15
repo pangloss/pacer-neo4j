@@ -91,6 +91,7 @@ module Pacer
         if indexed.any?
           indexed.map do |k, v|
             k = k.to_s.gsub '/', '\\/'
+
             if v.is_a? Range
               encoded = encode_property(v.min)
               if encoded.is_a? JDate
@@ -113,7 +114,7 @@ module Pacer
           f = SimpleDateFormat.new 'yyyyMMddHHmmssSSS'
           f.format s
         elsif s
-          if s.is_a? String and s =~ /[\t :"']/
+          if s.is_a? String
             s.inspect
           else s
             s
