@@ -96,7 +96,7 @@ module Pacer
               if encoded.is_a? JDate
                 "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
               else
-                "#{k}:{#{lucene_value v.min} TO #{lucene_value v.max}}"
+                "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
               end
             else
               "#{k}:#{lucene_value v}"
