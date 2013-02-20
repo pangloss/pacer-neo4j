@@ -86,23 +86,31 @@ module Pacer
         filters.properties.select { |k, v| key_indices(type).include?(k) and not v.nil? }
       end
 
+      def lucene_range(k, v)
+        if v.min and v.max
+          encoded = encode_property(v.min)
+          if encoded.is_a? JDate
+            "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
+          else
+            "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
+          end
+        end
+      end
+
       def build_query(type, filters)
         indexed = index_properties type, filters
         if indexed.any?
           indexed.map do |k, v|
             k = k.to_s.gsub '/', '\\/'
-
             if v.is_a? Range
-              encoded = encode_property(v.min)
-              if encoded.is_a? JDate
-                "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
-              else
-                "#{k}:[#{lucene_value v.min} TO #{lucene_value v.max}]"
-              end
+              lucene_range(k, v)
+            elsif v.class.name == 'RangeSet'
+              s = v.ranges.map { |r| lucene_range(k, r) }.join " OR "
+              "(#{s})"
             else
               "#{k}:#{lucene_value v}"
             end
-          end.join " AND "
+          end.compact.join " AND "
         else
           nil
         end
