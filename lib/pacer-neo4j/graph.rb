@@ -1,3 +1,5 @@
+require 'set'
+
 module Pacer
   module Neo4j
     class Graph < PacerGraph
@@ -86,6 +88,11 @@ module Pacer
         filters.properties.select { |k, v| key_indices(type).include?(k) and not v.nil? }
       end
 
+      def lucene_set(k, v)
+        statements = v.map { |x| "#{k}:#{lucene_value(x)}" }
+        "(#{ statements.join(' OR ') })"
+      end
+
       def lucene_range(k, v)
         if v.min and v.max
           encoded = encode_property(v.min)
@@ -107,6 +114,8 @@ module Pacer
             elsif v.class.name == 'RangeSet'
               s = v.ranges.map { |r| lucene_range(k, r) }.join " OR "
               "(#{s})"
+            elsif v.is_a? Set
+              lucene_set(k, v)
             else
               "#{k}:#{lucene_value v}"
             end
