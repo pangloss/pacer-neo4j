@@ -25,12 +25,6 @@ module Pacer
         blueprints_graph.allow_auto_tx
       end
 
-      def transaction(*args, &block)
-        blueprints_graph.transaction do
-          super
-        end
-      end
-
       def cypher(query)
         [query].to_route(element_type: :string, graph: self).cypher
       end
