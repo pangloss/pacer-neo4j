@@ -38,6 +38,48 @@ module Pacer
         end
       end
 
+      # When a Neo4J graph is restarted, the ids of any elements that were deleted
+      # will be reused. Running this code immediately after starting the graph
+      # prevents Neo4J from reusing those IDs.
+      def prevent_id_reuse!
+        {
+          edges: prevent_edge_id_reuse!,
+          vertices: prevent_vertex_id_reuse!
+        }
+      end
+
+      # This works by simply creating IDs until the ID of a new element is greater than
+      # either the max existing ID, or the min_new_id argument.
+      def prevent_vertex_id_reuse!(min_new_id = nil)
+        min_new_id ||= v.element_ids.max
+        g = blueprints_graph
+        n = 0
+        transaction do |_, rollback|
+          begin
+            n += 1
+            v = g.addVertex(nil)
+          end while v.getId < min_new_id
+          rollback.call
+        end
+        n
+      end
+
+      def prevent_edge_id_reuse!(min_new_id = nil)
+        min_new_id ||= e.element_ids.max
+        g = blueprints_graph
+        n = 0
+        transaction do |_, rollback|
+          v1 = g.addVertex nil
+          v2 = g.addVertex nil
+          begin
+            n += 1
+            e = g.addEdge(nil, v1, v2, "temp")
+          end while e.getId < min_new_id
+          rollback.call
+        end
+        n
+      end
+
       def neo_graph
         blueprints_graph.raw_graph
       end
