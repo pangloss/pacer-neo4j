@@ -93,7 +93,8 @@ module Pacer
           deleted_v: deleted_v_ids,
           created_e: created_e_ids,
           deleted_e: deleted_e_ids,
-          changes: changes }
+          changed_v: changed_v,
+          changed_e: changed_e }
       end
     end
   end
