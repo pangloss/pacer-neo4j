@@ -10,6 +10,11 @@ module Pacer
         tgi[:tx_depth] || 0
       end
 
+      def createKeyIndex(name, clazz, *params)
+        super(name, clazz, *params)
+        commit()
+      end
+
       def autoStartTransaction
         if allow_auto_tx or tx_depth != 0
           super
