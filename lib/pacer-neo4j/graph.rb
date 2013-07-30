@@ -51,7 +51,8 @@ module Pacer
       # This works by simply creating IDs until the ID of a new element is greater than
       # either the max existing ID, or the min_new_id argument.
       def prevent_vertex_id_reuse!(min_new_id = nil)
-        min_new_id ||= v.element_ids.max || 1
+        min_new_id ||= v.element_ids.max
+        return unless min_new_id
         g = blueprints_graph
         n = 0
         transaction do |_, rollback|
@@ -65,7 +66,8 @@ module Pacer
       end
 
       def prevent_edge_id_reuse!(min_new_id = nil)
-        min_new_id ||= e.element_ids.max || 1
+        min_new_id ||= e.element_ids.max
+        return unless min_new_id
         g = blueprints_graph
         n = 0
         transaction do |_, rollback|
@@ -168,9 +170,7 @@ module Pacer
           f.format s
         elsif s
           if s.is_a? String
-            # Escape special characters as found in docs
-            # http://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Escaping%20Special%20Characters
-            %Q["#{s.gsub(/([#{Regexp.escape '+-&|!(){}[]^"~*?:\\'}])/) {|c| "\\#{c}" }}"]
+            s.inspect
           else s
             s
           end
