@@ -168,7 +168,9 @@ module Pacer
           f.format s
         elsif s
           if s.is_a? String
-            s.inspect
+            # Escape special characters as found in docs
+            # http://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Escaping%20Special%20Characters
+            s.gsub(/([#{Regexp.escape '+-&|!(){}[]^"~*?:\\'}])/) {|c| "\\#{c}" }.inspect
           else s
             s
           end
