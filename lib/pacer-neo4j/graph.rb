@@ -170,7 +170,7 @@ module Pacer
           if s.is_a? String
             # Escape special characters as found in docs
             # http://lucene.apache.org/core/2_9_4/queryparsersyntax.html#Escaping%20Special%20Characters
-            s.gsub(/([#{Regexp.escape '+-&|!(){}[]^"~*?:\\'}])/) {|c| "\\#{c}" }.inspect
+            %Q["#{s.gsub(/([#{Regexp.escape '+-&|!(){}[]^"~*?:\\'}])/) {|c| "\\#{c}" }}"]
           else s
             s
           end
