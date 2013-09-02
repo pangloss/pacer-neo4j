@@ -192,6 +192,7 @@ module Pacer
         if search_manual_indices
           super
         else
+          filters.use_lookup!
           query = build_query(element_type, filters)
           if query
             route = lucene query, element_type: element_type, extensions: filters.extensions, wrapper: filters.wrapper
