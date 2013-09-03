@@ -192,6 +192,7 @@ module Pacer
         if search_manual_indices
           super
         else
+          filters.graph = self
           filters.use_lookup!
           query = build_query(element_type, filters)
           if query
