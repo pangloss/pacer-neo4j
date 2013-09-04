@@ -120,6 +120,23 @@ module Pacer
         neo_graph.unregisterTransactionEventHandler h
       end
 
+      # Creates a Blueprints key index without doing a rebuild.
+      def create_key_index_fast(name, type = :vertex)
+        raise "Invalid index type #{ type }" unless [:vertex, :edge].include? type
+        keys = (key_indices(type) + [name.to_s]).to_a
+        neo_settings = neo_graph.getNodeManager.getGraphProperties
+        iz = neo_graph.index.getNodeAutoIndexer
+        prop = ((type == :vertex) ? "Vertex:indexed_keys" : "Edge:indexed_keys")
+        transaction do
+          create_vertex.delete! # this forces Blueprints to actually start the transaction
+          neo_settings.setProperty prop, keys.to_java(:string)
+          keys.each do |key|
+            iz.startAutoIndexingProperty key
+          end
+        end
+      end
+
+
       private
 
       def index_properties(type, filters)
