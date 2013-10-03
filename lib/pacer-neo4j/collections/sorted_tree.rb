@@ -52,6 +52,12 @@ module Pacer::Neo4j
           rel = root_rel(base_node)
           comp = NeoPropertyComparator.new(rel.getProperty("sort_key"))
           super base_node, comp
+        elsif node_or_graph.is_a? Array
+          @graph = node_or_graph[1]
+          base_node = node_or_graph[0].rawElement
+          rel = root_rel(base_node)
+          comp = NeoPropertyComparator.new(rel.getProperty("sort_key"))
+          super base_node, comp
         else
           @graph = node_or_graph
           super node_or_graph.neo_graph, NeoPropertyComparator.new(sort_key), unique, tree_name
@@ -110,6 +116,36 @@ module Pacer::Neo4j
       end
     end
 
+    module Route
+      def leaves(*exts)
+        chain_route(pipe_class: Pipe, pipe_args: [graph], wrapper: nil, extensions: exts, route_name: 'leaves')
+      end
+
+      class Pipe < Pacer::Pipes::RubyPipe
+        attr_reader :graph
+        attr_accessor :leaves
+
+        def initialize(graph)
+          super()
+          @graph = graph
+        end
+
+        def processNextStart()
+          while true
+            if leaves
+              begin
+                return leaves.next
+              rescue StopIteration
+                self.leaves = nil
+              end
+            else
+              t = Pacer::Neo4j::Collections::SortedTree.new [starts.next, graph]
+              self.leaves = t.each.map { |v| neo_vertex v }
+            end
+          end
+        end
+      end
+    end
   end
 
   class Graph
