@@ -73,6 +73,8 @@ module Pacer::Neo4j
             rel.setProperty("sort_key", sort_key)
             rel.removeProperty("comparator_class")
           end
+        else
+          throw Pacer::ClientError, "no constructor found for arguments"
         end
       end
 
@@ -88,7 +90,9 @@ module Pacer::Neo4j
       end
 
       def insert(v)
-        addNode v.element.rawElement
+        graph.neo_transaction do
+          addNode v.element.rawElement
+        end
       end
       alias add_node insert
 
@@ -135,6 +139,7 @@ module Pacer::Neo4j
 
       def insert(v)
         sorted_tree_impl.insert v
+        self
       end
     end
 
@@ -144,6 +149,8 @@ module Pacer::Neo4j
       end
 
       class Pipe < Pacer::Pipes::RubyPipe
+        include Pacer::Neo4j::Algo::Wrapping
+
         attr_reader :graph
         attr_accessor :leaves
 
@@ -154,15 +161,15 @@ module Pacer::Neo4j
 
         def processNextStart()
           while true
-            if leaves
+            if leaves and leaves.hasNext
               begin
-                return leaves.next
-              rescue StopIteration
+                return neo_vertex leaves.next
+              rescue Exception
                 self.leaves = nil
               end
             else
               t = Pacer::Neo4j::Collections::SortedTree.new [starts.next, graph]
-              self.leaves = t.each.map { |v| neo_vertex v }
+              self.leaves = t.iterator
             end
           end
         end
