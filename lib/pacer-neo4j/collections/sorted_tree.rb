@@ -51,9 +51,7 @@ module Pacer::Neo4j
           base_node = node_or_graph.element.rawElement
           rel = root_rel(base_node)
           comp = NeoPropertyComparator.new(rel.getProperty("sort_key"))
-          is_unique = rel.getProperty('is_unique_index')
-          name = rel.getProperty('tree_name')
-          super base_node, comp, is_unique, name
+          super base_node, comp
         else
           @graph = node_or_graph
           super node_or_graph.neo_graph, NeoPropertyComparator.new(sort_key), unique, tree_name
@@ -85,12 +83,12 @@ module Pacer::Neo4j
     end
 
     module Graph
-      def create_unique_sorted_tree(name, key)
+      def create_unique_sorted_tree_vertex(name, key)
         t = Pacer::Neo4j::Collections::SortedTree.new self, key, true, name
         t.base_node
       end
 
-      def create_sorted_tree(name, key)
+      def create_sorted_tree_vertex(name, key)
         t = Pacer::Neo4j::Collections::SortedTree.new self, key, false, name
         t.base_node
       end
