@@ -66,14 +66,13 @@ module Pacer::Neo4j
           super base_node, comp
           @graph = node_or_graph[1]
         elsif node_or_graph.is_a? Pacer::Neo4j::Graph
-          neo = node_or_graph.neo_graph
-          tx = neo.beginTx
-          super(neo, NeoPropertyComparator.new(sort_key), unique, sort_key)
-          @graph = node_or_graph
-          rel = root_rel(baseNode)
-          rel.setProperty("sort_key", sort_key)
-          rel.removeProperty("comparator_class")
-          tx.success if tx
+          node_or_graph.neo_transaction do
+            super(node_or_graph.neo_graph, NeoPropertyComparator.new(sort_key), unique, sort_key)
+            @graph = node_or_graph
+            rel = root_rel(baseNode)
+            rel.setProperty("sort_key", sort_key)
+            rel.removeProperty("comparator_class")
+          end
         end
       end
 

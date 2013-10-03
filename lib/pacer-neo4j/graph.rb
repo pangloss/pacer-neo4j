@@ -29,6 +29,19 @@ module Pacer
         [query].to_route(element_type: :string, graph: self).cypher
       end
 
+      # Forces the tx to start. Necessary for calling stuff against the Neo API
+      # directly because the blueprints transaction only starts on the first
+      # write.
+      def neo_transaction
+        t = neo_graph.beginTx
+        yield t
+        t.success
+      rescue Exception => e
+        t.failure
+      ensure
+        t.finish
+      end
+
       def key_index_cache(type, name, size = :undefined)
         indexer = lucene_auto_index(type)
         if size == :undefined
@@ -127,8 +140,7 @@ module Pacer
         neo_settings = neo_graph.getNodeManager.getGraphProperties
         iz = neo_graph.index.getNodeAutoIndexer
         prop = ((type == :vertex) ? "Vertex:indexed_keys" : "Edge:indexed_keys")
-        transaction do
-          create_vertex.delete! # this forces Blueprints to actually start the transaction
+        neo_transaction do
           neo_settings.setProperty prop, keys.to_java(:string)
           keys.each do |key|
             iz.startAutoIndexingProperty key
