@@ -32,6 +32,12 @@
             <artifactId>blueprints-neo4j-graph</artifactId>
             <version>${blueprints.version}</version>
         </dependency>
+        <dependency>
+          <!-- NOTE: currently requires the version at github.com/pangloss/graph-collections -->
+          <groupId>org.neo4j</groupId>
+          <artifactId>neo4j-graph-collections</artifactId>
+          <version>0.6-neo4j-1.9-SNAPSHOT</version>
+        </dependency>
         <!--
         <dependency>
             <groupId>com.tinkerpop.blueprints</groupId>
