@@ -74,13 +74,16 @@ module Pacer::Neo4j
       alias add_node insert
 
       def leaves(*exts)
-        iterator.to_route.
-          map(graph: graph, element_type: :vertex, extensions: exts) { |n| neo_vertex n }
+        to_route.map(graph: graph, element_type: :vertex, extensions: exts) { |n| neo_vertex n }
       end
     end
   end
 
   module SortedTree
+    def self.route(r)
+      r.v.lookahead { |v| v.out_e(:TREE_ROOT) }
+    end
+
     module Graph
       def create_unique_sorted_tree(name, key)
         t = Pacer::Neo4j::Collections::SortedTree.new self, key, true, name
@@ -97,17 +100,18 @@ module Pacer::Neo4j
       include Pacer::Neo4j::Algo::Wrapping
 
       def sorted_tree_impl
-        @sorted_tree ||= SortedTree.new self
+        @sorted_tree ||= Pacer::Neo4j::Collections::SortedTree.new self
       end
 
       def leaves(*exts)
-        sorted_tree_impl.leaves(graph, *exts)
+        sorted_tree_impl.leaves(*exts)
       end
 
       def insert(v)
         sorted_tree_impl.insert v
       end
     end
+
   end
 
   class Graph
