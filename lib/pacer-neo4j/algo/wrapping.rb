@@ -21,6 +21,14 @@ module Pacer
           end
         end
 
+        def neo_vertex(v)
+          Neo4jVertex.new(v, graph.blueprints_graph)
+        end
+
+        def neo_edge(v)
+          Neo4jEdge.new(e, graph.blueprints_graph)
+        end
+
         def wrap_vertex(v)
           Pacer::Wrappers::VertexWrapper.new graph, Neo4jVertex.new(v, graph.blueprints_graph)
         end

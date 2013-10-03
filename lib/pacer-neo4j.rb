@@ -22,6 +22,7 @@ require 'pacer-neo4j/lucene_filter'
 require 'pacer-neo4j/transaction_event_handler'
 require 'pacer-neo4j/tx_data_wrapper'
 require 'pacer-neo4j/blueprints_graph'
+require 'pacer-neo4j/collections/sorted_tree'
 
 Pacer::FunctionResolver.clear_cache
 
