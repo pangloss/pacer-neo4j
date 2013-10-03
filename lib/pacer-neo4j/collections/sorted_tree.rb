@@ -34,6 +34,13 @@ module Pacer::Neo4j
   module Collections
     BaseSortedTree = org.neo4j.collections.sortedtree.SortedTree
 
+    # Instantiate this using either
+    # `graph.create_sorted_tree_vertex(key)` or
+    # `graph.create_unique_sorted_tree_vertex(key)`
+    #
+    # Creates a sorted data structure similar to a cons list.
+    #
+    # O(n) insert and retrieval.
     class SortedTree < BaseSortedTree
       REL_TYPES = BaseSortedTree::RelTypes
       import org.neo4j.graphdb.Direction
@@ -45,31 +52,40 @@ module Pacer::Neo4j
         n.getSingleRelationship REL_TYPES::TREE_ROOT, Direction::OUTGOING
       end
 
-      def initialize(node_or_graph, sort_key = nil, unique = nil, tree_name = nil)
+      def initialize(node_or_graph, sort_key = nil, unique = nil)
         if node_or_graph.is_a? Pacer::Vertex
-          @graph = node_or_graph.graph
           base_node = node_or_graph.element.rawElement
           rel = root_rel(base_node)
           comp = NeoPropertyComparator.new(rel.getProperty("sort_key"))
           super base_node, comp
+          @graph = node_or_graph.graph
         elsif node_or_graph.is_a? Array
-          @graph = node_or_graph[1]
           base_node = node_or_graph[0].rawElement
           rel = root_rel(base_node)
           comp = NeoPropertyComparator.new(rel.getProperty("sort_key"))
           super base_node, comp
-        else
+          @graph = node_or_graph[1]
+        elsif node_or_graph.is_a? Pacer::Neo4j::Graph
+          neo = node_or_graph.neo_graph
+          tx = neo.beginTx
+          super(neo, NeoPropertyComparator.new(sort_key), unique, sort_key)
           @graph = node_or_graph
-          super node_or_graph.neo_graph, NeoPropertyComparator.new(sort_key), unique, tree_name
-          root_rel(baseNode).setProperty("sort_key", sort_key)
-          root_rel(baseNode).removeProperty("comparator_class")
+          rel = root_rel(baseNode)
+          rel.setProperty("sort_key", sort_key)
+          rel.removeProperty("comparator_class")
+          tx.success if tx
         end
       end
 
-      def base_node
-        v = wrap_vertex(baseNode).add_extensions [Pacer::Neo4j::SortedTree]
-        v.instance_variable_set '@sorted_tree', self
-        v
+      def base_node(modules, wrapper = nil)
+        vertex = wrap_vertex(baseNode)
+        modules += [Pacer::Neo4j::SortedTree]
+        if wrapper
+          vertex = wrapper.new self, vertex.element
+        else
+          vertex = vertex.add_extensions modules
+        end
+        vertex
       end
 
       def insert(v)
@@ -89,14 +105,21 @@ module Pacer::Neo4j
     end
 
     module Graph
-      def create_unique_sorted_tree_vertex(name, key)
-        t = Pacer::Neo4j::Collections::SortedTree.new self, key, true, name
-        t.base_node
+      def create_unique_sorted_tree_vertex(key, *args)
+        t = Pacer::Neo4j::Collections::SortedTree.new self, key.to_s, true
+        _, wrapper, modules, props = id_modules_properties(args)
+        vertex = t.base_node(modules, wrapper)
+        props.each { |k, v| vertex[k.to_s] = v } if props
+        vertex
       end
 
-      def create_sorted_tree_vertex(name, key)
-        t = Pacer::Neo4j::Collections::SortedTree.new self, key, false, name
-        t.base_node
+      def create_sorted_tree_vertex(key, *args)
+        id, wrapper, modules, props = id_modules_properties(args)
+        t = Pacer::Neo4j::Collections::SortedTree.new self, key.to_s, false
+        _, wrapper, modules, props = id_modules_properties(args)
+        vertex = t.base_node(modules, wrapper)
+        props.each { |k, v| vertex[k.to_s] = v } if props
+        vertex
       end
     end
 
