@@ -358,13 +358,13 @@ end
         else
           e = Traversal.emptyExpander
           [*out_labels].each do |label|
-            e.add DynamicRelationshipType.withName(label.to_s), Direction::OUTGOING
+            e = e.add DynamicRelationshipType.withName(label.to_s), Direction::OUTGOING
           end
           [*in_labels].each do |label|
-            e.add DynamicRelationshipType.withName(label.to_s), Direction::INCOMING
+            e = e.add DynamicRelationshipType.withName(label.to_s), Direction::INCOMING
           end
           [*both_labels].each do |label|
-            e.add DynamicRelationshipType.withName(label.to_s), Direction::BOTH
+            e = e.add DynamicRelationshipType.withName(label.to_s), Direction::BOTH
           end
           e
         end
