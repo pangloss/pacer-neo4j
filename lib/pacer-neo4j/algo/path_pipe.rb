@@ -4,8 +4,8 @@ module Pacer
       class PathPipe < Pacer::Pipes::RubyPipe
         import org.neo4j.graphdb::Node
         import org.neo4j.graphdb::Relationship
-        import com.tinkerpop.blueprints.impls.neo4j.Neo4jVertex
-        import com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
+        import com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Vertex
+        import com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Edge
 
         attr_reader :algo, :target, :graph, :max_hits
         attr_accessor :current_paths, :hits
@@ -21,9 +21,9 @@ module Pacer
         def processNextStart
           next_raw_path.map do |e|
             if e.is_a? Node
-              Neo4jVertex.new e, graph
+              Neo4j2Vertex.new e, graph
             elsif e.is_a? Relationship
-              Neo4jEdge.new e, graph
+              Neo4j2Edge.new e, graph
             else
               e
             end

@@ -13,7 +13,7 @@ class RSpec::GraphRunner
 
     def neo_graph
       return @neo_graph if @neo_graph
-      path1 = File.expand_path('tmp/spec.neo4j')
+      path1 = File.expand_path('tmp/spec.neo4j2')
       dir = Pathname.new(path1)
       dir.rmtree if dir.exist?
       @neo_graph = Pacer.neo4j(path1)
@@ -21,7 +21,7 @@ class RSpec::GraphRunner
 
     def neo_graph2
       return @neo_graph2 if @neo_graph2
-      path2 = File.expand_path('tmp/spec.neo4j.2')
+      path2 = File.expand_path('tmp/spec.neo4j2.2')
       dir = Pathname.new(path2)
       dir.rmtree if dir.exist?
       @neo_graph2 = Pacer.neo4j(path2)
@@ -29,7 +29,7 @@ class RSpec::GraphRunner
 
     def neo_graph_no_indices
       return @neo_graph_no_indices if @neo_graph_no_indices
-      path3 = File.expand_path('tmp/spec_no_indices.neo4j')
+      path3 = File.expand_path('tmp/spec_no_indices.neo4j2')
       dir = Pathname.new(path3)
       dir.rmtree if dir.exist?
       @neo_graph_no_indices = Pacer.neo4j(path3)

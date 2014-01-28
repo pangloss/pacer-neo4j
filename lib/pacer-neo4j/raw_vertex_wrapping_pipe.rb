@@ -1,7 +1,7 @@
 module Pacer
   module Neo4j
     class RawVertexWrappingPipe < Pacer::Pipes::RubyPipe
-      import com.tinkerpop.blueprints.impls.neo4j.Neo4jVertex
+      import com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Vertex
 
       attr_reader :graph
 
@@ -11,7 +11,7 @@ module Pacer
       end
 
       def processNextStart
-        Neo4jVertex.new starts.next, graph
+        Neo4j2Vertex.new starts.next, graph
       end
     end
   end

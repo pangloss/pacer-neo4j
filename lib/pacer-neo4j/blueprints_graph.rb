@@ -1,6 +1,6 @@
 module Pacer
   module Neo4j
-    class BlueprintsGraph < com.tinkerpop.blueprints.impls.neo4j.Neo4jGraph
+    class BlueprintsGraph < com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Graph
       attr_accessor :allow_auto_tx
 
       # Threadlocal tx_depth is set in Pacer's graph_transaction_mixin.rb

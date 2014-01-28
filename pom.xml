@@ -29,7 +29,7 @@
     <dependencies>
         <dependency>
             <groupId>com.tinkerpop.blueprints</groupId>
-            <artifactId>blueprints-neo4j-graph</artifactId>
+            <artifactId>blueprints-neo4j2-graph</artifactId>
             <version>${blueprints.version}</version>
         </dependency>
     </dependencies>

@@ -4,7 +4,7 @@ module Pacer
       class BlockCostEvaluator
         import org.neo4j.graphalgo.CostEvaluator
         import org.neo4j.graphdb.Direction
-        import com.tinkerpop.blueprints.impls.neo4j.Neo4jEdge
+        import com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Edge
         include CostEvaluator
 
         DIRS = {
@@ -22,7 +22,7 @@ module Pacer
         end
 
         def getCost(rel, dir)
-          e = Pacer::Wrappers::EdgeWrapper.new graph, Neo4jEdge.new(rel, graph.blueprints_graph)
+          e = Pacer::Wrappers::EdgeWrapper.new graph, Neo4j2Edge.new(rel, graph.blueprints_graph)
           result = block.call e, DIRS[dir]
           if result.is_a? Numeric
             result.to_f
