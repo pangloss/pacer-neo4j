@@ -42,8 +42,12 @@ module Pacer
     # `graph.setCheckElementsInTransaction(false)` to disable the
     # feature.
     #
-    # It is recommended that in production, the allow_auto_tx and
-    # allow_auto_read_tx values be set to false.
+    # It is recommended that *in production* the `allow_auto_tx` and
+    # `allow_auto_read_tx` options be set to `false` to prevent hard-to-debug
+    # errors caused by Blueprints' automatically starting transactions which it
+    # never automatically commits or rolls back. When working in the console,
+    # however, reenabling automatic read transactons is generally recommended,
+    # together with periodic use of `rollback_implicit_transaction`
     def neo4j(path_or_graph, args = nil)
       if path_or_graph.is_a? String
         path = File.expand_path(path_or_graph)
