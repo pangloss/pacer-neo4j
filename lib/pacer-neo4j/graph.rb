@@ -25,6 +25,14 @@ module Pacer
         blueprints_graph.allow_auto_tx
       end
 
+      def allow_auto_read_tx=(b)
+        blueprints_graph.allow_auto_read_tx = b
+      end
+
+      def allow_auto_read_tx
+        blueprints_graph.allow_auto_read_tx
+      end
+
       def cypher(query)
         [query].to_route(element_type: :string, graph: self).cypher
       end

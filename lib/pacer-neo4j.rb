@@ -41,6 +41,9 @@ module Pacer
     # require considerable more complexity in client code, you can use
     # `graph.setCheckElementsInTransaction(false)` to disable the
     # feature.
+    #
+    # It is recommended that in production, the allow_auto_tx and
+    # allow_auto_read_tx values be set to false.
     def neo4j(path_or_graph, args = nil)
       if path_or_graph.is_a? String
         path = File.expand_path(path_or_graph)
@@ -55,6 +58,7 @@ module Pacer
               graph = Pacer::Neo4j::BlueprintsGraph.new(path)
             end
             graph.allow_auto_tx = true
+            graph.allow_auto_read_tx = true
             Pacer.open_graphs[path] = graph.raw_graph
             graph.setCheckElementsInTransaction true
           end

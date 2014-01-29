@@ -1,7 +1,7 @@
 module Pacer
   module Neo4j
     class BlueprintsGraph < com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Graph
-      attr_accessor :allow_auto_tx
+      attr_accessor :allow_auto_tx, :allow_auto_read_tx
 
       # Threadlocal tx_depth is set in Pacer's graph_transaction_mixin.rb
       def tx_depth
@@ -30,7 +30,7 @@ module Pacer
             raise Pacer::TransactionError, "Can't mutate the graph outside a transaction block"
           end
         else
-          if allow_auto_tx or read_tx_depth != 0
+          if allow_auto_read_tx or read_tx_depth != 0
             super
           else
             raise Pacer::TransactionError, "Can't read the graph outside a transaction or read_transaction block"
