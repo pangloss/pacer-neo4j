@@ -10,11 +10,31 @@ module Pacer
         tgi[:tx_depth] || 0
       end
 
-      def autoStartTransaction
-        if allow_auto_tx or tx_depth != 0
-          super
+      # Threadlocal read_tx_depth is set in Pacer's graph_transaction_mixin.rb
+      def read_tx_depth
+        graphs = Thread.current[:graphs] ||= {}
+        tgi = graphs[object_id] ||= {}
+        depth = tgi[:read_tx_depth] || 0
+        if depth == 0
+          tgi[:tx_depth] || 0 # Reads are allowed in any type of tx.
         else
-          raise Pacer::TransactionError, "Can't mutate the graph outside a transaction block"
+          depth
+        end
+      end
+
+      def autoStartTransaction(for_write)
+        if for_write
+          if allow_auto_tx or tx_depth != 0
+            super
+          else
+            raise Pacer::TransactionError, "Can't mutate the graph outside a transaction block"
+          end
+        else
+          if allow_auto_tx or read_tx_depth != 0
+            super
+          else
+            raise Pacer::TransactionError, "Can't read the graph outside a transaction or read_transaction block"
+          end
         end
       end
     end
