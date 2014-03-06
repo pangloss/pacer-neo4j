@@ -61,8 +61,8 @@ module Pacer
             else
               graph = Pacer::Neo4j::BlueprintsGraph.new(path)
             end
-            graph.allow_auto_tx = true
-            graph.allow_auto_read_tx = true
+            graph.allow_auto_tx = false
+            graph.allow_auto_read_tx = false
             Pacer.open_graphs[path] = graph.raw_graph
             graph.setCheckElementsInTransaction true
           end
