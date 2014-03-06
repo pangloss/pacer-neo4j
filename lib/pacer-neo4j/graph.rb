@@ -94,6 +94,10 @@ module Pacer
         blueprints_graph.raw_graph
       end
 
+      def reopen_read_transaction
+        blueprints_graph.autoStartTransaction(false) if in_read_transaction?
+      end
+
       def on_commit(&block)
         return unless block
         TransactionEventHandler.new(self).tap do |h|
