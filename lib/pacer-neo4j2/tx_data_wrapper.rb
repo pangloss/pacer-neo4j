@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     # Uses the interface defined here:
     # http://api.neo4j.org/1.8/org/neo4j/graphdb/Path.html
     #

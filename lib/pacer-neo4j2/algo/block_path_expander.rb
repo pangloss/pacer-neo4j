@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     module Algo
       class BlockPathExpander
         import org.neo4j.graphdb.PathExpander

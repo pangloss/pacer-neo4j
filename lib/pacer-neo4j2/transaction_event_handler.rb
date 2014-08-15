@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     class TransactionEventHandler
       include org.neo4j.graphdb.event.TransactionEventHandler
 

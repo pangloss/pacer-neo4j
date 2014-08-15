@@ -90,7 +90,7 @@ module Pacer
       class ResultsPipe < Pacer::Pipes::RubyPipe
         import org.neo4j.cypher.javacompat.ExecutionEngine
 
-        include Pacer::Neo4j::Algo::Wrapping
+        include Pacer::Neo4j2::Algo::Wrapping
 
         attr_reader :columns, :graph, :single
         attr_accessor :current

@@ -12,7 +12,7 @@ This plugin enables full [Neo4J](http://neo4j.org) graph support in Pacer.
 Here is how you open a Neo4J graph in Pacer.
 
   require 'pacer'
-  require 'pacer-neo4j'
+  require 'pacer-neo4j2'
 
   # Graph will be created if it doesn't exist
   graph = Pacer.neo4j 'path/to/graph'

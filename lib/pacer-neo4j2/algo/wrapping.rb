@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     module Algo
       module Wrapping
         import org.neo4j.graphdb.Node

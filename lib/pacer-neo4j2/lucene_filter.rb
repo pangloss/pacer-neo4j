@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     class Graph
       def lucene(query, opts = {})
         opts = { back: self, element_type: :vertex }.merge opts
@@ -98,7 +98,7 @@ module Pacer
       end
 
       def source_iterator
-        pipe = Pacer::Neo4j::RawVertexWrappingPipe.new graph
+        pipe = Pacer::Neo4j2::RawVertexWrappingPipe.new graph
         pipe.setStarts query_result
         pipe.enablePath(true)
         pipe

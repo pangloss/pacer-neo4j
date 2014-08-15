@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     module Algo
       # Uses the interface defined here:
       # http://api.neo4j.org/1.8/org/neo4j/graphdb/traversal/TraversalBranch.html

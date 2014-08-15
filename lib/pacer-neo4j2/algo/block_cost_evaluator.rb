@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     module Algo
       class BlockCostEvaluator
         import org.neo4j.graphalgo.CostEvaluator

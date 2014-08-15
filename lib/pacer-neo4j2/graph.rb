@@ -1,7 +1,7 @@
 require 'set'
 
 module Pacer
-  module Neo4j
+  module Neo4j2
     class Graph < PacerGraph
       JDate = java.util.Date
       import java.text.SimpleDateFormat

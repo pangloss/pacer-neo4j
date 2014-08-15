@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     module Algo
       class PathPipe < Pacer::Pipes::RubyPipe
         import org.neo4j.graphdb::Node

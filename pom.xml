@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tinkerpop.pacer</groupId>
-    <artifactId>pacer-neo4j</artifactId>
-    <!-- NOTE: the following properties are automatically updated based on the values in lib/pacer-neo4j/version.rb -->
+    <artifactId>pacer-neo4j2</artifactId>
+    <!-- NOTE: the following properties are automatically updated based on the values in lib/pacer-neo4j2/version.rb -->
     <properties>
       <blueprints.version>2.5.0</blueprints.version>
-      <gem.version>3.0.0.pre</gem.version>
+      <gem.version>2.0.1</gem.version>
       <pipes.version>2.5.0</pipes.version>
     </properties>
-    <!-- NOTE: the following properties are automatically updated based on the values in lib/pacer-neo4j/version.rb -->
+    <!-- NOTE: the following properties are automatically updated based on the values in lib/pacer-neo4j2/version.rb -->
     <version>${gem.version}</version>
     <packaging>pom</packaging>
     <url>https://github.com/pangloss/pacer</url>

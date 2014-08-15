@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     class RawVertexWrappingPipe < Pacer::Pipes::RubyPipe
       import com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Vertex
 

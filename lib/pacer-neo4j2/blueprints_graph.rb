@@ -1,5 +1,5 @@
 module Pacer
-  module Neo4j
+  module Neo4j2
     class BlueprintsGraph < com.tinkerpop.blueprints.impls.neo4j2.Neo4j2Graph
       attr_accessor :allow_auto_tx, :allow_auto_read_tx
 

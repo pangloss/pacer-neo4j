@@ -29,7 +29,7 @@ module Pacer
       import org.neo4j.graphdb.Direction
       import org.neo4j.kernel.Traversal
       import org.neo4j.graphdb.DynamicRelationshipType
-      include Pacer::Neo4j::Algo
+      include Pacer::Neo4j2::Algo
 
       def after_initialize
         fail Pacer::ClientError, 'graph must be neo4j' unless graph.vendor == 'neo4j'
@@ -139,7 +139,7 @@ Path expansion options:
   reverse:  Proc | PathExpander   Custom rule for the reverse search
 
       proc { |path, state| edges }:
-        path is a Pacer::Neo4j::Algo::PathWrapper - help(:path) for details
+        path is a Pacer::Neo4j2::Algo::PathWrapper - help(:path) for details
         The proc must simply return an Enumerable of edges that the
 
 HELP
@@ -239,7 +239,7 @@ end
 
       # note that expander procs *must* return edge(s) that are connected to the end_v of the given path
       #
-      # expander yields: { |path, state| path.is_a? Pacer::Neo4j::Algo::PathWrapper }
+      # expander yields: { |path, state| path.is_a? Pacer::Neo4j2::Algo::PathWrapper }
       attr_accessor :expander, :forward, :reverse
 
       # use dijkstra unless the below estimate properties are set
