@@ -8,7 +8,6 @@ file 'pom.xml' => 'lib/pacer-neo4j/version.rb' do
       pom.each_line do |line|
         line.sub!(%r{<gem.version>.*</gem.version>}, "<gem.version>#{ Pacer::Neo4j::VERSION }</gem.version>")
         line.sub!(%r{<blueprints.version>.*</blueprints.version>}, "<blueprints.version>#{ Pacer::Neo4j::BLUEPRINTS_VERSION }</blueprints.version>")
-        line.sub!(%r{<pipes.version>.*</pipes.version>}, "<pipes.version>#{ Pacer::Neo4j::PIPES_VERSION }</pipes.version>")
         f << line
       end
     end
