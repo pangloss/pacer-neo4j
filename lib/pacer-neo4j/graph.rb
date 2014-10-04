@@ -162,7 +162,7 @@ module Pacer
       private
 
       def index_properties(type, filters)
-        filters.properties.select { |k, v| key_indices(type).include?(k) and not v.nil? }
+        filters.properties.select { |k, v| v and key_indices(type).include?(k) }
       end
 
       def lucene_set(k, v)
