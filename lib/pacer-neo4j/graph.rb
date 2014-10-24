@@ -160,24 +160,27 @@ module Pacer
       end
 
       def build_query(type, filters)
+        empty = false
         indexed = index_properties type, filters
-        if indexed.any?
-          indexed.map do |k, v|
-            k = k.to_s.gsub '/', '\\/'
-            if v.is_a? Range
-              lucene_range(k, v)
-            elsif v.class.name == 'RangeSet'
-              s = v.ranges.map { |r| lucene_range(k, r) }.join " OR "
-              "(#{s})"
-            elsif v.is_a? Set
-              lucene_set(k, v)
+        q = if indexed.any?
+              indexed.map do |k, v|
+                k = k.to_s.gsub '/', '\\/'
+                if v.is_a? Range
+                  lucene_range(k, v)
+                elsif v.class.name == 'RangeSet'
+                  s = v.ranges.map { |r| lucene_range(k, r) }.join " OR "
+                  "(#{s})"
+                elsif v.is_a? Set
+                  empty = true if v.empty?
+                  lucene_set(k, v)
+                else
+                  "#{k}:#{lucene_value v}"
+                end
+              end.compact.join " AND "
             else
-              "#{k}:#{lucene_value v}"
+              nil
             end
-          end.compact.join " AND "
-        else
-          nil
-        end
+        [empty, q]
       end
 
       def lucene_value(v)
@@ -211,18 +214,21 @@ module Pacer
         else
           filters.graph = self
           filters.use_lookup!
-          query = build_query(element_type, filters)
+          empty, query = build_query(element_type, filters)
           if query
             route = lucene query, element_type: element_type, extensions: filters.extensions, wrapper: filters.wrapper
             filters.remove_property_keys key_indices(element_type)
             if filters.any?
-              Pacer::Route.property_filter(route, filters, block)
-            else
-              route
+              route = Pacer::Route.property_filter(route, filters, block)
             end
           elsif filters.route_modules.any?
             mod = filters.route_modules.shift
-            Pacer::Route.property_filter(mod.route(self), filters, block)
+            route = Pacer::Route.property_filter(mod.route(self), filters, block)
+          end
+          if empty
+            [].to_route based_on: route
+          else
+            route
           end
         end
       end
