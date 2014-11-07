@@ -13,10 +13,11 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.add_dependency 'pacer', Pacer::Neo4j2::PACER_REQ
+  s.add_dependency "lock_jar", "~> 0.10.0"
 
   s.rubyforge_project = "pacer-neo4j2"
 
-  s.files         = `git ls-files`.split("\n") + [Pacer::Neo4j2::JAR_PATH]
+  s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ["lib"]
 end
