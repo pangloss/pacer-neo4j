@@ -7,16 +7,17 @@ Gem::Specification.new do |s|
   s.version     = Pacer::Neo4j::VERSION
   s.platform    = 'java'
   s.authors     = ["Darrick Wiebe"]
-  s.email       = ["darrick@innatesoftware.com"]
+  s.email       = ["dw@xnlogic.com"]
   s.homepage    = "http://neo4j.org"
   s.summary     = %q{Neo4J jars and related code for Pacer}
   s.description = s.summary
 
   s.add_dependency 'pacer', Pacer::Neo4j::PACER_REQ
+  s.add_dependency "lock_jar", "~> 0.10.0"
 
   s.rubyforge_project = "pacer-neo4j"
 
-  s.files         = `git ls-files`.split("\n") + [Pacer::Neo4j::JAR_PATH]
+  s.files         = `git ls-files`.split("\n")
   s.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   s.require_paths = ["lib"]
 end
