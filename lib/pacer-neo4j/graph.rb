@@ -25,6 +25,24 @@ module Pacer
         blueprints_graph.allow_auto_tx
       end
 
+      attr_accessor :keep_deleted_vertex_stubs
+
+      # This method accepts only an unwrapped Blueprints Vertex
+      def remove_vertex(vertex)
+        g = blueprints_graph
+        if keep_deleted_vertex_stubs
+          vertex.getPropertyKeys.each do |key|
+            vertex.removeProperty(key)
+          end
+          vertex.getEdges(Pacer::Pipes::BOTH).each do |edge|
+            g.removeEdge edge
+          end
+          nil
+        else
+          super
+        end
+      end
+
       def cypher(query)
         [query].to_route(element_type: :string, graph: self).cypher
       end
@@ -41,6 +59,8 @@ module Pacer
       # When a Neo4J graph is restarted, the ids of any elements that were deleted
       # will be reused. Running this code immediately after starting the graph
       # prevents Neo4J from reusing those IDs.
+      #
+      # DEPRECATED: Set keep_deleted_vertex_stubs = true
       def prevent_id_reuse!
         {
           edges: prevent_edge_id_reuse!,
@@ -50,6 +70,8 @@ module Pacer
 
       # This works by simply creating IDs until the ID of a new element is greater than
       # either the max existing ID, or the min_new_id argument.
+      #
+      # DEPRECATED: Set keep_deleted_vertex_stubs = true
       def prevent_vertex_id_reuse!(min_new_id = nil)
         min_new_id ||= v.element_ids.max
         return unless min_new_id
