@@ -5,10 +5,6 @@ $:.unshift lib_path unless $:.any? { |path| path == lib_path }
 
 require 'pacer-neo4j/version'
 
-require 'lock_jar'
-LockJar.lock(File.join(File.dirname(__FILE__), "..", "Jarfile"))
-LockJar.load
-
 require 'pacer-neo4j/graph'
 require 'pacer-neo4j/algo/wrapping'
 require 'pacer-neo4j/algo/path_pipe'
