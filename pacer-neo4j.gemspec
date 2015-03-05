@@ -16,6 +16,7 @@ Gem::Specification.new do |s|
   s.add_dependency "lock_jar", "~> 0.10.2"
 
   s.add_development_dependency 'xn_gem_release_tasks'
+  s.add_development_dependency 'rake'
 
   s.rubyforge_project = "pacer-neo4j"
 
