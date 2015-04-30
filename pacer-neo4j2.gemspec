@@ -13,7 +13,6 @@ Gem::Specification.new do |s|
   s.description = s.summary
 
   s.add_dependency 'pacer', Pacer::Neo4j2::PACER_REQ
-  s.add_dependency "lock_jar", "~> 0.10.2"
 
   s.add_development_dependency 'xn_gem_release_tasks'
 
