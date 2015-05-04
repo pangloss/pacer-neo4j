@@ -11,17 +11,19 @@ module Pacer
       private
 
       def choose_index(opts)
-        et = opts[:element_type]
-        idx = opts[:index]
-        case idx
-        when String, Symbol
-          index(idx, et).index.raw_index
-        when Pacer::Wrappers::IndexWrapper
-          idx.index.raw_index
-        when com.tinkerpop.blueprints.Index
-          idx.raw_index
-        else
-          lucene_auto_index(et)
+        read_transaction do
+          et = opts[:element_type]
+          idx = opts[:index]
+          case idx
+          when String, Symbol
+            index(idx, et).index.raw_index
+          when Pacer::Wrappers::IndexWrapper
+            idx.index.raw_index
+          when com.tinkerpop.blueprints.Index
+            idx.raw_index
+          else
+            lucene_auto_index(et)
+          end
         end
       end
     end
@@ -94,7 +96,9 @@ module Pacer
       end
 
       def query_result
-        index.query build_query
+        graph.read_transaction do
+          index.query build_query
+        end
       end
 
       def source_iterator
@@ -105,7 +109,9 @@ module Pacer
       end
 
       def inspect_string
-        "#{ inspect_class_name }(#{ query }) ~ #{ query_result.count }"
+        graph.read_transaction do
+          "#{ inspect_class_name }(#{ query }) ~ #{ query_result.count }"
+        end
       end
     end
   end

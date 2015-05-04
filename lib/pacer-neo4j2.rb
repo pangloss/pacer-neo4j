@@ -1,4 +1,4 @@
-require 'pacer' unless defined? Pacer
+require 'pacer'
 
 lib_path = File.expand_path(File.join(File.dirname(__FILE__), '../lib'))
 $:.unshift lib_path unless $:.any? { |path| path == lib_path }
@@ -42,27 +42,29 @@ module Pacer
     # `graph.setCheckElementsInTransaction(false)` to disable the
     # feature.
     #
-    # It is recommended that *in production* the `allow_auto_tx` and
-    # `allow_auto_read_tx` options be set to `false` to prevent hard-to-debug
-    # errors caused by Blueprints' automatically starting transactions which it
-    # never automatically commits or rolls back. When working in the console,
-    # however, reenabling automatic read transactons is generally recommended,
-    # together with periodic use of `rollback_implicit_transaction`
-    def neo4j2(path_or_graph, args = nil)
+    # It is recommended that *in production* the `allow_auto_tx` option be set
+    # to `false` to prevent hard-to-debug errors caused by Blueprints'
+    # automatically starting transactions which it never automatically commits
+    # or rolls back. You can also set `allow_auto_read_tx` in the same way.
+    # When working in the console, enabling automatic read transactons is
+    # generally recommended, together with periodic use of
+    # `rollback_implicit_transaction`
+    #
+    def neo4j2(path_or_graph, args = nil, graph_class = Pacer::Neo4j2::BlueprintsGraph)
       if path_or_graph.is_a? String
         path = File.expand_path(path_or_graph)
         open = proc do
           raw_graph = Pacer.open_graphs[path]
           if raw_graph
-            graph = Pacer::Neo4j2::BlueprintsGraph.new(raw_graph)
+            graph = graph_class.new(raw_graph)
           else
             if args
-              graph = Pacer::Neo4j2::BlueprintsGraph.new(path, args.to_hash_map)
+              graph = graph_class.new(path, args.to_hash_map)
             else
-              graph = Pacer::Neo4j2::BlueprintsGraph.new(path)
+              graph = graph_class.new(path)
             end
             graph.allow_auto_tx = false
-            graph.allow_auto_read_tx = false
+            graph.allow_auto_read_tx = true
             Pacer.open_graphs[path] = graph.raw_graph
             graph.setCheckElementsInTransaction true
           end
@@ -75,7 +77,7 @@ module Pacer
         Neo4j2::Graph.new(Pacer::YamlEncoder, open, shutdown)
       else
         # Don't register the new graph so that it won't be automatically closed.
-        Neo4j2::Graph.new Pacer::YamlEncoder, proc { Pacer::Neo4j2::BlueprintsGraph.new(path_or_graph) }
+        Neo4j2::Graph.new Pacer::YamlEncoder, proc { graph_class.new(path_or_graph) }
       end
     end
 
