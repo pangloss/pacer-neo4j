@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'pacer', Pacer::Neo4j2::PACER_REQ
 
   s.add_development_dependency 'xn_gem_release_tasks'
+  s.add_development_dependency 'rake'
 
   s.rubyforge_project = "pacer-neo4j2"
 
