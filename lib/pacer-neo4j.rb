@@ -22,6 +22,7 @@ require 'pacer-neo4j/lucene_filter'
 require 'pacer-neo4j/transaction_event_handler'
 require 'pacer-neo4j/tx_data_wrapper'
 require 'pacer-neo4j/blueprints_graph'
+require 'fileutils'
 
 Pacer::FunctionResolver.clear_cache
 
@@ -49,6 +50,7 @@ module Pacer
           if raw_graph
             graph = Pacer::Neo4j::BlueprintsGraph.new(raw_graph)
           else
+            FileUtils.mkdir_p path
             if args
               graph = Pacer::Neo4j::BlueprintsGraph.new(path, args.to_hash_map)
             else
