@@ -29,6 +29,10 @@ Pacer::FunctionResolver.clear_cache
 module Pacer
   # Add 'static methods' to the Pacer namespace.
   class << self
+    def neo4j_class(args)
+      Pacer::Neo4j::BlueprintsGraph
+    end
+
     # Return a graph for the given path. Will create a graph if none exists at
     # that location. (The graph is only created if data is actually added to it).
     #
@@ -48,13 +52,13 @@ module Pacer
         open = proc do
           raw_graph = Pacer.open_graphs[path]
           if raw_graph
-            graph = Pacer::Neo4j::BlueprintsGraph.new(raw_graph)
+            graph = neo4j_class(args).new(raw_graph)
           else
             FileUtils.mkdir_p path
             if args
-              graph = Pacer::Neo4j::BlueprintsGraph.new(path, args.to_hash_map)
+              graph = neo4j_class(args).new(path, args.to_hash_map)
             else
-              graph = Pacer::Neo4j::BlueprintsGraph.new(path)
+              graph = neo4j_class({}).new(path)
             end
             graph.allow_auto_tx = false
             Pacer.open_graphs[path] = graph.raw_graph
@@ -69,7 +73,7 @@ module Pacer
         Neo4j::Graph.new(Pacer::YamlEncoder, open, shutdown)
       else
         # Don't register the new graph so that it won't be automatically closed.
-        Neo4j::Graph.new Pacer::YamlEncoder, proc { Pacer::Neo4j::BlueprintsGraph.new(path_or_graph) }
+        Neo4j::Graph.new Pacer::YamlEncoder, proc { neo4j_class(args || {}).new(path_or_graph) }
       end
     end
 
