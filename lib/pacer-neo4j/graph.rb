@@ -37,6 +37,7 @@ module Pacer
           vertex.getEdges(Pacer::Pipes::BOTH).each do |edge|
             g.removeEdge edge
           end
+          vertex.setProperty '*deleted*', true
           nil
         else
           super
