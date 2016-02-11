@@ -10,7 +10,7 @@ module Pacer
 
       def initialize(graph)
         @graph = graph
-        on_commit_wrapper = on_commit_failed_wrapper = before_commit_wrapper = TxDataWrapper
+        @on_commit_wrapper = @on_commit_failed_wrapper = @before_commit_wrapper = TxDataWrapper
       end
 
       def unregister!
@@ -38,6 +38,10 @@ module Pacer
         if enable_cache
           wrapped.data
         end
+      rescue Exception => e
+        p e.message
+        pp e.backtrace
+        throw
       end
 
       def afterCommit(data, cache)
@@ -50,6 +54,10 @@ module Pacer
             on_commit.call
           end
         end
+      rescue Exception => e
+        p e.message
+        pp e.backtrace
+        throw
       end
 
       # This is actually only called if the commit fails and then it internally tries to
@@ -68,6 +76,10 @@ module Pacer
             on_commit_failed.call
           end
         end
+      rescue Exception => e
+        p e.message
+        pp e.backtrace
+        throw
       end
     end
   end

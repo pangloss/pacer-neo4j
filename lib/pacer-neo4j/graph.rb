@@ -111,7 +111,7 @@ module Pacer
 
       def transaction_event_handler
         unless @teh
-          @teh = TransactionEventHandler.new(self, wrapper)
+          @teh = TransactionEventHandler.new(self)
           neo_graph.registerTransactionEventHandler @teh
         end
         @teh

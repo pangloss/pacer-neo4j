@@ -33,7 +33,12 @@ module Pacer
 
       def created_v_ids
         if type_property
-          tx.createdNodes.map { |n| [n.getId, n.getProperty(type_property)] }
+          tx.createdNodes.map do |n|
+            if n.hasProperty(type_property)
+              type = n.getProperty(type_property)
+            end
+            [n.getId, type]
+          end
         else
           tx.createdNodes.map { |n| [n.getId] }
         end
