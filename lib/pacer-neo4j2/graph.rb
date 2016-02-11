@@ -120,13 +120,28 @@ module Pacer
       def reopen_read_transaction
         blueprints_graph.autoStartTransaction(false) if in_read_transaction?
       end
-
-      def on_commit(&block)
-        return unless block
-        TransactionEventHandler.new(self).tap do |h|
-          h.on_commit = block
-          neo_graph.registerTransactionEventHandler h
+      def transaction_event_handler
+        unless @teh
+          @teh = TransactionEventHandler.new(self)
+          neo_graph.registerTransactionEventHandler @teh
         end
+        @teh
+      end
+
+      def before_commit(wrapper = nil, &block)
+        return unless block
+        wrapper = false if block.arity == 0
+        transaction_event_handler.before_commit_wrapper = wrapper unless wrapper.nil?
+        transaction_event_handler.before_commit = block
+        nil
+      end
+
+      def on_commit(wrapper = nil, &block)
+        return unless block
+        wrapper = false if block.arity == 0
+        transaction_event_handler.on_commit_wrapper = wrapper unless wrapper.nil?
+        transaction_event_handler.on_commit = block
+        nil
       end
 
       # This is actually only called if the commit fails and then it internally tries to
@@ -135,20 +150,12 @@ module Pacer
       # An exception in before_commit can definitely trigger this.
       #
       # Regular rollbacks do not get seen by the transaction system and no callback happens.
-      def on_commit_failed(&block)
+      def on_commit_failed(wrapper = nil, &block)
         return unless block
-        TransactionEventHandler.new(self).tap do |h|
-          h.on_commit_failed = block
-          neo_graph.registerTransactionEventHandler h
-        end
-      end
-
-      def before_commit(&block)
-        return unless block
-        TransactionEventHandler.new(self).tap do |h|
-          h.before_commit = block
-          neo_graph.registerTransactionEventHandler h
-        end
+        wrapper = false if block.arity == 0
+        transaction_event_handler.on_commit_failed_wrapper = wrapper unless wrapper.nil?
+        transaction_event_handler.on_commit_failed = block
+        nil
       end
 
       def drop_handler(h)

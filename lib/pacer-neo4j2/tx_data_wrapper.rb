@@ -7,11 +7,12 @@ module Pacer
     class TxDataWrapper
       include Algo::Wrapping
 
-      attr_reader :graph, :tx
+      attr_reader :graph, :tx, :type_property
 
-      def initialize(tx, graph)
+      def initialize(tx, graph, type_property)
         @tx = tx
         @graph = graph
+        @type_property = type_property
       end
 
       def created_v
@@ -31,7 +32,16 @@ module Pacer
       end
 
       def created_v_ids
-        tx.createdNodes.map { |n| n.getId }
+        if type_property
+          tx.createdNodes.map do |n|
+            if n.hasProperty(type_property)
+              type = n.getProperty(type_property)
+            end
+            [n.getId, type]
+          end
+        else
+          tx.createdNodes.map { |n| [n.getId] }
+        end
       end
 
       def deleted_v_ids
@@ -39,7 +49,7 @@ module Pacer
       end
 
       def created_e_ids
-        tx.createdRelationships.map { |n| n.getId }
+        tx.createdRelationships.map { |n| [n.getId, n.getType.name, n.getStartNode.getId, n.getEndNode.getId] }
       end
 
       def deleted_e_ids
@@ -50,42 +60,38 @@ module Pacer
         tx.is_deleted e.element.rawElement
       end
 
-      def changed_v
+      def assigned_v
         tx.assignedNodeProperties.map do |p|
-          { element_type: :vertex,
-            id: p.entity.getId,
-            key: p.key,
-            was: graph.decode_property(p.previouslyCommitedValue),
-            is: graph.decode_property(p.value) }
-        end +
+          [p.entity.getId, p.key, graph.decode_property(p.value)]
+        end
+      end
+
+      def cleared_v
         tx.removedNodeProperties.map do |p|
-          { element_type: :vertex,
-            id: p.entity.getId,
-            key: p.key,
-            was: graph.decode_property(p.previouslyCommitedValue),
-            is: nil }
+          [p.entity.getId, p.key]
         end
       end
 
-      def changed_e
+      def assigned_e
         tx.assignedRelationshipProperties.map do |p|
-          { element_type: :edge,
-            id: p.entity.getId,
-            key: p.key,
-            was: graph.decode_property(p.previouslyCommitedValue),
-            is: graph.decode_property(p.value) }
-        end +
-        tx.removedRelationshipProperties.map do |p|
-          { element_type: :edge,
-            id: p.entity.getId,
-            key: p.key,
-            was: graph.decode_property(p.previouslyCommitedValue),
-            is: nil }
+          [p.entity.getId, p.key, graph.decode_property(p.value)]
         end
       end
 
-      def changes
-        changed_v + changed_e
+      def cleared_e
+        tx.removedRelationshipProperties.map do |p|
+          [p.entity.getId, p.key]
+        end
+      end
+
+      def each_v_change(&blk)
+        assigned_v.each(&blk)
+        cleared_v.each(&blk)
+      end
+
+      def each_e_change(&blk)
+        assigned_e.each(&blk)
+        cleared_e.each(&blk)
       end
 
       def summary
@@ -93,8 +99,72 @@ module Pacer
           deleted_v: deleted_v_ids,
           created_e: created_e_ids,
           deleted_e: deleted_e_ids,
-          changed_v: changed_v,
-          changed_e: changed_e }
+          assigned_v: assigned_v,
+          cleared_v: cleared_v,
+          assigned_e: assigned_e,
+          cleared_e: cleared_e }
+      end
+
+      def data
+        TxCachedData.new summary
+      end
+
+      def as_json(options = nil)
+        data.as_json(options)
+      end
+    end
+
+    class TxCachedData
+      attr_reader :summary
+
+      def initialize(summary)
+        @summary = summary
+      end
+
+      def created_v_ids
+        summary[:created_v]
+      end
+
+      def deleted_v_ids
+        summary[:deleted_v]
+      end
+
+      def created_e_ids
+        summary[:created_e]
+      end
+
+      def deleted_e_ids
+        summary[:deleted_e]
+      end
+
+      def assigned_v
+        summary[:assigned_v]
+      end
+
+      def cleared_v
+        summary[:cleared_v]
+      end
+
+      def assigned_e
+        summary[:assigned_e]
+      end
+
+      def cleared_e
+        summary[:cleared_e]
+      end
+
+      def each_v_change(&blk)
+        assigned_v.each(&blk)
+        cleared_v.each(&blk)
+      end
+
+      def each_e_change(&blk)
+        assigned_e.each(&blk)
+        cleared_e.each(&blk)
+      end
+
+      def as_json(options = nil)
+        summary.as_json(options)
       end
     end
   end
