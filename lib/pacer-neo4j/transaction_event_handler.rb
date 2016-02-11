@@ -6,6 +6,7 @@ module Pacer
       attr_reader :graph, :enable_cache
       attr_accessor :on_commit         , :on_commit_failed         , :before_commit
       attr_accessor :on_commit_wrapper , :on_commit_failed_wrapper , :before_commit_wrapper
+      attr_accessor :type_property
 
       def initialize(graph)
         @graph = graph
@@ -25,7 +26,7 @@ module Pacer
       # Return value is passed to afterCommit or afterRollback, but some values can cause crashes.
       def beforeCommit(data)
         if before_commit_wrapper and (before_commit or enable_cache)
-          wrapped = before_commit_wrapper.new data, graph
+          wrapped = before_commit_wrapper.new data, graph, type_property
         end
         if before_commit
           if before_commit_wrapper

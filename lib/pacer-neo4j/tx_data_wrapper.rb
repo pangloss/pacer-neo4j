@@ -7,11 +7,12 @@ module Pacer
     class TxDataWrapper
       include Algo::Wrapping
 
-      attr_reader :graph, :tx
+      attr_reader :graph, :tx, :type_property
 
-      def initialize(tx, graph)
+      def initialize(tx, graph, type_property)
         @tx = tx
         @graph = graph
+        @type_property = type_property
       end
 
       def created_v
@@ -31,7 +32,11 @@ module Pacer
       end
 
       def created_v_ids
-        tx.createdNodes.map { |n| n.getId }
+        if type_property
+          tx.createdNodes.map { |n| [n.getId, n.getProperty(type_property)] }
+        else
+          tx.createdNodes.map { |n| [n.getId] }
+        end
       end
 
       def deleted_v_ids
@@ -39,7 +44,7 @@ module Pacer
       end
 
       def created_e_ids
-        tx.createdRelationships.map { |n| [n.getId, n.getStartNode.getId, n.getEndNode.getId] }
+        tx.createdRelationships.map { |n| [n.getId, n.getType.name, n.getStartNode.getId, n.getEndNode.getId] }
       end
 
       def deleted_e_ids
@@ -72,6 +77,16 @@ module Pacer
         tx.removedRelationshipProperties.map do |p|
           [p.entity.getId, p.key]
         end
+      end
+
+      def each_v_change(&blk)
+        assigned_v.each(&blk)
+        cleared_v.each(&blk)
+      end
+
+      def each_e_change(&blk)
+        assigned_e.each(&blk)
+        cleared_e.each(&blk)
       end
 
       def summary
@@ -126,11 +141,21 @@ module Pacer
       end
 
       def assigned_e
-        summary[:assigned_.]
+        summary[:assigned_e]
       end
 
       def cleared_e
-        summary[:cleared_.]
+        summary[:cleared_e]
+      end
+
+      def each_v_change(&blk)
+        assigned_v.each(&blk)
+        cleared_v.each(&blk)
+      end
+
+      def each_e_change(&blk)
+        assigned_e.each(&blk)
+        cleared_e.each(&blk)
       end
 
       def as_json(options = nil)
